@@ -1,0 +1,10 @@
+---
+- name: "Unmount volume at {{ volume.mount_path }}"
+  ansible.posix.mount:
+    path: "{{ volume.mount_path }}"
+    state: absent
+
+- name: "Remove mount point {{ volume.mount_path }}"
+  ansible.builtin.file:
+    path: "{{ volume.mount_path }}"
+    state: absent

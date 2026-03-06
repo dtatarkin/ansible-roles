@@ -1,0 +1,18 @@
+---
+- name: Deploy clickhouse secret manifest
+  ansible.builtin.template:
+    src: clickhouse-secret.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/clickhouse-secret.yml
+    mode: "0600"
+
+- name: Deploy clickhouse HelmChart manifest
+  ansible.builtin.template:
+    src: clickhouse-helmchart.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/clickhouse-helmchart.yml
+    mode: "0600"
+
+- name: Deploy clickhouse NodePort service manifest
+  ansible.builtin.template:
+    src: clickhouse-nodeport.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/clickhouse-nodeport.yml
+    mode: "0600"

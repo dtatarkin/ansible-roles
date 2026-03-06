@@ -1,0 +1,6 @@
+---
+- name: Deploy Traefik configuration manifest
+  ansible.builtin.template:
+    src: traefik-config.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/traefik-config.yml
+    mode: "0600"

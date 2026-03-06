@@ -1,0 +1,26 @@
+---
+- name: Deploy cert-manager HelmChart
+  ansible.builtin.include_tasks: deploy.yml
+  when: cert_manager_state == 'present'
+
+- name: Wait for Helm install job to complete
+  ansible.builtin.command:
+    cmd: kubectl -n kube-system wait --for=condition=complete job/helm-install-cert-manager --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 15
+  register: cert_manager_helm_job
+  until: cert_manager_helm_job.rc == 0
+  when: cert_manager_state == 'present'
+
+- name: Verify cert-manager
+  ansible.builtin.include_tasks: verify.yml
+  when: cert_manager_state == 'present'
+
+- name: Deploy ClusterIssuer
+  ansible.builtin.include_tasks: clusterissuer.yml
+  when: cert_manager_state == 'present'
+
+- name: Remove cert-manager
+  ansible.builtin.include_tasks: remove.yml
+  when: cert_manager_state == 'absent'

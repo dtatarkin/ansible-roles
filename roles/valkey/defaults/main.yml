@@ -1,0 +1,22 @@
+---
+
+# Role state: 'present' to deploy, 'absent' to remove
+valkey_state: present
+# Set to true to delete PVCs when state is absent
+valkey_purge_data: false
+# Official Valkey Helm chart settings
+# https://github.com/valkey-io/valkey-helm
+# Note: image tag intentionally omitted — chart uses appVersion (9.0.1)
+valkey_chart_version: "0.9.3"
+valkey_chart_repo: "https://valkey-io.github.io/valkey-helm"
+valkey_namespace: valkey
+valkey_storage_class: local-path
+valkey_storage_size: 1Gi
+valkey_node_port: 30000
+valkey_maxmemory: 256mb
+
+# Resource requests (tuned for cx23 instances)
+valkey_resources:
+  requests:
+    cpu: 100m
+    memory: 256Mi

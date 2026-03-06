@@ -1,0 +1,28 @@
+---
+- name: Wait for hcloud-csi-controller deployment
+  ansible.builtin.command:
+    cmd: kubectl -n {{ hcloud_csi_namespace }} rollout status deployment/hcloud-csi-controller --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 10
+  register: hcloud_csi_controller_rollout
+  until: hcloud_csi_controller_rollout.rc == 0
+
+- name: Wait for hcloud-csi-node DaemonSet
+  ansible.builtin.command:
+    cmd: kubectl -n {{ hcloud_csi_namespace }} rollout status daemonset/hcloud-csi-node --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 10
+  register: hcloud_csi_node_rollout
+  until: hcloud_csi_node_rollout.rc == 0
+
+- name: Show CSI pods
+  ansible.builtin.command:
+    cmd: kubectl -n {{ hcloud_csi_namespace }} get pods -l app.kubernetes.io/instance=hcloud-csi -o wide
+  changed_when: false
+  register: hcloud_csi_pods
+
+- name: Print CSI pod status
+  ansible.builtin.debug:
+    var: hcloud_csi_pods.stdout_lines

@@ -1,0 +1,68 @@
+---
+
+# Role state: 'present' to deploy, 'absent' to remove
+monitoring_state: present
+# Set to true to delete PVCs and namespace when state is absent
+monitoring_purge_data: false
+monitoring_chart_version: "0.72.2"
+monitoring_chart_repo: "https://victoriametrics.github.io/helm-charts"
+monitoring_namespace: monitoring
+
+# Storage
+monitoring_storage_class: local-path
+monitoring_storage_size: 2Gi
+monitoring_retention_period: 14d
+monitoring_vmsingle_memory_allowed_bytes: "268435456"  # 256MB
+
+# Scrape and evaluation intervals
+monitoring_scrape_interval: 30s
+monitoring_evaluation_interval: 30s
+
+# Grafana
+# monitoring_grafana_admin_password moved to all.sops.yml
+monitoring_grafana_hostname: grafana.nebula
+monitoring_grafana_node_port: 30000
+monitoring_grafana_public_hostname: grafana.svc.infra.tatarkin.top
+monitoring_grafana_tls_enabled: true
+monitoring_grafana_clusterissuer: letsencrypt-production
+monitoring_grafana_storage_class: local-path
+monitoring_grafana_storage_size: 1Gi
+
+# Alert receiver (blackhole = no notifications)
+monitoring_alertmanager_receiver: blackhole
+
+# Resource limits (tuned for cx23 instances)
+monitoring_vmsingle_resources:
+  requests:
+    cpu: 50m
+    memory: 256Mi
+
+monitoring_vmagent_resources:
+  requests:
+    cpu: 25m
+    memory: 64Mi
+
+monitoring_vmalert_resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+
+monitoring_alertmanager_resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+
+monitoring_grafana_resources:
+  requests:
+    cpu: 50m
+    memory: 100Mi
+
+monitoring_kube_state_metrics_resources:
+  requests:
+    cpu: 10m
+    memory: 32Mi
+
+monitoring_node_exporter_resources:
+  requests:
+    cpu: 10m
+    memory: 24Mi

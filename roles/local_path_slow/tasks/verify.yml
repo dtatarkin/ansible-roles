@@ -1,0 +1,14 @@
+---
+- name: Wait for local-path-slow-provisioner deployment
+  ansible.builtin.command:
+    cmd: kubectl rollout status deployment/local-path-slow-provisioner -n {{ local_path_slow_namespace }} --timeout=120s
+  changed_when: false
+  retries: 3
+  delay: 10
+  register: local_path_slow_rollout_result
+  until: local_path_slow_rollout_result.rc == 0
+
+- name: Verify hcloud-local StorageClass exists
+  ansible.builtin.command:
+    cmd: kubectl get storageclass {{ local_path_slow_storage_class }}
+  changed_when: false

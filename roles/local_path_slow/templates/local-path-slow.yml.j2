@@ -1,0 +1,129 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: local-path-slow-service-account
+  namespace: {{ local_path_slow_namespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: local-path-slow-role
+rules:
+  - apiGroups: [""]
+    resources: ["nodes", "persistentvolumeclaims", "configmaps", "pods", "pods/log"]
+    verbs: ["get", "list", "watch", "create", "delete"]
+  - apiGroups: [""]
+    resources: ["persistentvolumes"]
+    verbs: ["get", "list", "watch", "create", "patch", "update", "delete"]
+  - apiGroups: [""]
+    resources: ["events"]
+    verbs: ["create", "patch"]
+  - apiGroups: ["storage.k8s.io"]
+    resources: ["storageclasses"]
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: local-path-slow-bind
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: local-path-slow-role
+subjects:
+  - kind: ServiceAccount
+    name: local-path-slow-service-account
+    namespace: {{ local_path_slow_namespace }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: local-path-slow-config
+  namespace: {{ local_path_slow_namespace }}
+data:
+  config.json: |-
+    {
+      "nodePathMap": [
+        {
+          "node": "DEFAULT_PATH_FOR_NON_LISTED_NODES",
+          "paths": ["{{ local_path_slow_volume_mount }}"]
+        }
+      ]
+    }
+  setup: |-
+    #!/bin/sh
+    set -eu
+    mkdir -m 0777 -p "$VOL_DIR"
+  teardown: |-
+    #!/bin/sh
+    set -eu
+    rm -rf "$VOL_DIR"
+  helperPod.yaml: |-
+    apiVersion: v1
+    kind: Pod
+    metadata:
+      name: helper-pod
+    spec:
+      priorityClassName: system-node-critical
+      tolerations:
+        - key: node.kubernetes.io/disk-pressure
+          operator: Exists
+          effect: NoSchedule
+      containers:
+        - name: helper-pod
+          image: {{ local_path_slow_helper_image }}
+          imagePullPolicy: IfNotPresent
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: local-path-slow-provisioner
+  namespace: {{ local_path_slow_namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: local-path-slow-provisioner
+  template:
+    metadata:
+      labels:
+        app: local-path-slow-provisioner
+    spec:
+      serviceAccountName: local-path-slow-service-account
+      containers:
+        - name: local-path-slow-provisioner
+          image: {{ local_path_slow_image }}
+          imagePullPolicy: IfNotPresent
+          command:
+            - local-path-provisioner
+            - --debug
+            - start
+            - --config
+            - /etc/config/config.json
+            - --service-account-name
+            - local-path-slow-service-account
+            - --provisioner-name
+            - {{ local_path_slow_provisioner_name }}
+            - --configmap-name
+            - local-path-slow-config
+          volumeMounts:
+            - name: config-volume
+              mountPath: /etc/config/
+          env:
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+      volumes:
+        - name: config-volume
+          configMap:
+            name: local-path-slow-config
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ local_path_slow_storage_class }}
+provisioner: {{ local_path_slow_provisioner_name }}
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Delete

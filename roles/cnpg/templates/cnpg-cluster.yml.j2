@@ -1,0 +1,60 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ cnpg_cluster_name }}
+  namespace: {{ cnpg_namespace }}
+spec:
+  instances: {{ cnpg_instances }}
+  imageName: {{ cnpg_pg_image }}
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: cnpg-superuser
+  bootstrap:
+    initdb:
+      database: {{ cnpg_bootstrap_database | default('app') }}
+      owner: {{ cnpg_bootstrap_owner | default('app') }}
+      secret:
+        name: cnpg-app
+      postInitApplicationSQL:
+{% for user in cnpg_users if user.database | default(cnpg_bootstrap_database) == cnpg_bootstrap_database %}
+{% if user.access_level == 'read' %}
+        - "GRANT CONNECT ON DATABASE {{ user.database | default(cnpg_bootstrap_database) }} TO {{ user.name }};"
+        - "GRANT USAGE ON SCHEMA public TO {{ user.name }};"
+        - "GRANT SELECT ON ALL TABLES IN SCHEMA public TO {{ user.name }};"
+        - "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO {{ user.name }};"
+{% elif user.access_level == 'write' %}
+        - "GRANT CONNECT ON DATABASE {{ user.database | default(cnpg_bootstrap_database) }} TO {{ user.name }};"
+        - "GRANT USAGE ON SCHEMA public TO {{ user.name }};"
+        - "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO {{ user.name }};"
+        - "GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO {{ user.name }};"
+        - "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO {{ user.name }};"
+        - "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO {{ user.name }};"
+{% endif %}
+{% endfor %}
+  storage:
+    storageClass: {{ cnpg_storage_class }}
+    size: {{ cnpg_storage_size }}
+  managed:
+    roles:
+{% for user in cnpg_users %}
+      - name: {{ user.name }}
+        ensure: present
+        login: true
+        superuser: false
+        createdb: {{ 'true' if user.access_level | default('') == 'owner' else 'false' }}
+        passwordSecret:
+          name: cnpg-user-{{ user.name }}
+{% endfor %}
+    services:
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: {{ cnpg_cluster_name }}-nodeport
+            spec:
+              type: NodePort
+              ports:
+                - name: postgresql
+                  port: 5432
+                  targetPort: 5432
+                  nodePort: {{ cnpg_node_port }}

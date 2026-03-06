@@ -1,0 +1,19 @@
+---
+- name: "Create filesystem on {{ volume.device }}"
+  community.general.filesystem:
+    fstype: "{{ hcloud_volumes_fstype }}"
+    dev: "{{ volume.device }}"
+
+- name: "Create mount point {{ volume.mount_path }}"
+  ansible.builtin.file:
+    path: "{{ volume.mount_path }}"
+    state: directory
+    mode: "0755"
+
+- name: Mount volume at mount_path
+  ansible.posix.mount:
+    path: "{{ volume.mount_path }}"
+    src: "{{ volume.device }}"
+    fstype: "{{ hcloud_volumes_fstype }}"
+    opts: discard,nofail
+    state: mounted

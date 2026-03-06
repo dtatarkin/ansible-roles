@@ -1,0 +1,18 @@
+---
+galaxy_info:
+  role_name: woodpecker
+  description: Deploy Woodpecker CI server (via K3s HelmChart) and Docker-based agent
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - jammy
+        - noble
+    - name: Debian
+      versions:
+        - bookworm
+
+collections:
+  - community.docker
+
+dependencies: []

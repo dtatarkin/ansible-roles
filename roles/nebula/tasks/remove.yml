@@ -1,0 +1,26 @@
+---
+- name: Stop and disable nebula service
+  ansible.builtin.systemd:
+    name: nebula
+    state: stopped
+    enabled: false
+  failed_when: false
+
+- name: Remove nebula systemd unit
+  ansible.builtin.file:
+    path: /etc/systemd/system/nebula.service
+    state: absent
+
+- name: Remove nebula config directory
+  ansible.builtin.file:
+    path: "{{ nebula_config_dir }}"
+    state: absent
+
+- name: Remove nebula binary
+  ansible.builtin.file:
+    path: "{{ nebula_install_dir }}/nebula"
+    state: absent
+
+- name: Reload systemd daemon
+  ansible.builtin.systemd:
+    daemon_reload: true

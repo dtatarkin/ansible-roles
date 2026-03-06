@@ -1,0 +1,46 @@
+---
+- name: Create temporary config directory
+  ansible.builtin.tempfile:
+    state: directory
+    suffix: nebula-config
+  delegate_to: localhost
+  become: false
+  changed_when: false
+  register: nebula_config_tmpdir
+
+- name: Generate nebula config
+  ansible.builtin.command:
+    cmd: >-
+      uv run nebula-cert-manager
+      --registry-dir {{ playbook_dir }}/../../nebula-registry
+      config
+      --output-dir {{ nebula_config_tmpdir.path }}
+      --name {{ inventory_hostname }}
+  delegate_to: localhost
+  become: false
+  changed_when: false
+
+- name: Ensure nebula config directory exists
+  ansible.builtin.file:
+    path: "{{ nebula_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Copy generated config to remote host
+  ansible.builtin.copy:
+    src: "{{ nebula_config_tmpdir.path }}/{{ inventory_hostname }}/config.yml"
+    dest: "{{ nebula_config_dir }}/config.yml"
+    owner: root
+    group: root
+    mode: "0600"
+    notify: Restart nebula
+
+- name: Clean up temporary config directory
+  ansible.builtin.file:
+    path: "{{ nebula_config_tmpdir.path }}"
+    state: absent
+  delegate_to: localhost
+  become: false
+  changed_when: false

@@ -1,0 +1,67 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: docker-registry-ui
+  namespace: kube-system
+spec:
+  repo: {{ docker_registry_chart_repo }}
+  chart: docker-registry-ui
+  version: {{ docker_registry_chart_version }}
+  targetNamespace: {{ docker_registry_namespace }}
+  createNamespace: true
+  valuesContent: |-
+    registry:
+      enabled: true
+      image: registry:2.8.2
+      dataVolume:
+        persistentVolumeClaim:
+          claimName: registry-data-pvc
+      auth:
+        basic:
+          enabled: true
+          secretName: registry-htpasswd
+      ingress:
+        enabled: true
+        host: {{ docker_registry_hostname }}
+        path: /v2/
+        pathType: Prefix
+        ingressClassName: traefik
+        tls:
+          - secretName: registry-tls
+            hosts:
+              - {{ docker_registry_hostname }}
+        annotations:
+          cert-manager.io/cluster-issuer: {{ docker_registry_clusterissuer }}
+
+
+    ui:
+      proxy: true
+      registrySecured: true
+      singleRegistry: true
+      deleteImages: true
+      ingress:
+        enabled: true
+        host: {{ docker_registry_hostname }}
+        path: /
+        pathType: Prefix
+        ingressClassName: traefik
+        tls:
+          - secretName: registry-ui-tls
+            hosts:
+              - {{ docker_registry_hostname }}
+        annotations:
+          cert-manager.io/cluster-issuer: {{ docker_registry_clusterissuer }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: registry-data-pvc
+  namespace: {{ docker_registry_namespace }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ docker_registry_storage_class }}
+  resources:
+    requests:
+      storage: {{ docker_registry_storage_size }}

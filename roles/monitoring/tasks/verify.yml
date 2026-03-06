@@ -1,0 +1,46 @@
+---
+- name: Wait for victoria-metrics-operator deployment
+  ansible.builtin.command:
+    cmd: kubectl -n {{ monitoring_namespace }} rollout status deployment/vm-k8s-stack-victoria-metrics-operator --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 10
+  register: monitoring_operator_rollout
+  until: monitoring_operator_rollout.rc == 0
+
+- name: Wait for Grafana deployment
+  ansible.builtin.command:
+    cmd: kubectl -n {{ monitoring_namespace }} rollout status deployment/vm-k8s-stack-grafana --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 10
+  register: monitoring_grafana_rollout
+  until: monitoring_grafana_rollout.rc == 0
+
+- name: Wait for VMSingle pod
+  ansible.builtin.command:
+    cmd: kubectl -n {{ monitoring_namespace }} wait --for=condition=ready pod -l app.kubernetes.io/name=vmsingle --timeout=300s
+  changed_when: false
+  retries: 10
+  delay: 15
+  register: monitoring_vmsingle_ready
+  until: monitoring_vmsingle_ready.rc == 0
+
+- name: Wait for vmagent pod
+  ansible.builtin.command:
+    cmd: kubectl -n {{ monitoring_namespace }} wait --for=condition=ready pod -l app.kubernetes.io/name=vmagent --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 15
+  register: monitoring_vmagent_ready
+  until: monitoring_vmagent_ready.rc == 0
+
+- name: Show monitoring pods
+  ansible.builtin.command:
+    cmd: kubectl -n {{ monitoring_namespace }} get pods -o wide
+  changed_when: false
+  register: monitoring_pods
+
+- name: Print monitoring pod status
+  ansible.builtin.debug:
+    var: monitoring_pods.stdout_lines

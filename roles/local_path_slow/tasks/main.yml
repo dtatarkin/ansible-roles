@@ -1,0 +1,13 @@
+---
+- name: Deploy local-path-slow provisioner
+  when: local_path_slow_state == 'present'
+  block:
+    - name: Deploy local-path-slow provisioner
+      ansible.builtin.include_tasks: deploy.yml
+
+    - name: Verify local-path-slow provisioner
+      ansible.builtin.include_tasks: verify.yml
+
+- name: Remove local-path-slow provisioner
+  ansible.builtin.include_tasks: remove.yml
+  when: local_path_slow_state == 'absent'

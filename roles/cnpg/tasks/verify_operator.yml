@@ -1,0 +1,19 @@
+---
+- name: Wait for CloudNativePG operator rollout
+  ansible.builtin.command:
+    cmd: kubectl -n {{ cnpg_operator_namespace }} rollout status deployment/cnpg-cloudnative-pg --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 15
+  register: cnpg_operator_rollout
+  until: cnpg_operator_rollout.rc == 0
+
+- name: Show CloudNativePG operator pods
+  ansible.builtin.command:
+    cmd: kubectl -n {{ cnpg_operator_namespace }} get pods -o wide
+  changed_when: false
+  register: cnpg_operator_pods
+
+- name: Print CloudNativePG operator pod status
+  ansible.builtin.debug:
+    var: cnpg_operator_pods.stdout_lines

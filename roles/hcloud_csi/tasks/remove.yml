@@ -1,0 +1,22 @@
+---
+- name: Remove hcloud-csi HelmChart manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/hcloud-csi-helmchart.yml
+    state: absent
+
+- name: Remove hcloud-csi secret manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/hcloud-csi-secret.yml
+    state: absent
+
+- name: Delete hcloud-csi HelmChart resource
+  ansible.builtin.command:
+    cmd: kubectl delete helmchart hcloud-csi -n kube-system --ignore-not-found
+  changed_when: "'deleted' in _helmchart_delete.stdout"
+  register: _helmchart_delete
+
+- name: Delete hcloud secret
+  ansible.builtin.command:
+    cmd: kubectl delete secret hcloud -n {{ hcloud_csi_namespace }} --ignore-not-found
+  changed_when: "'deleted' in _secret_delete.stdout"
+  register: _secret_delete

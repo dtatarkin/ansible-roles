@@ -1,0 +1,13 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: valkey
+  namespace: kube-system
+spec:
+  repo: {{ valkey_chart_repo }}
+  chart: valkey
+  version: {{ valkey_chart_version }}
+  targetNamespace: {{ valkey_namespace }}
+  createNamespace: true
+  valuesContent: |-
+    {{ lookup('template', 'valkey-values.yml.j2') | indent(4) }}
