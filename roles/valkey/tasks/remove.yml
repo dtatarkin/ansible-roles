@@ -1,0 +1,36 @@
+---
+- name: Remove valkey HelmChart manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/valkey-helmchart.yml
+    state: absent
+
+- name: Remove valkey secret manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/valkey-secret.yml
+    state: absent
+
+- name: Delete valkey HelmChart CRD to trigger Helm uninstall
+  ansible.builtin.command:
+    cmd: kubectl -n kube-system delete helmchart valkey --ignore-not-found
+  changed_when: false
+
+- name: Wait for K3s to uninstall valkey Helm release
+  ansible.builtin.command:
+    cmd: kubectl -n {{ valkey_namespace }} get deployment valkey
+  register: valkey_check
+  changed_when: false
+  failed_when: false
+  retries: 20
+  delay: 15
+  until: valkey_check.rc != 0
+
+- name: Delete valkey secret from cluster
+  ansible.builtin.command:
+    cmd: kubectl -n {{ valkey_namespace }} delete secret valkey-credentials --ignore-not-found
+  changed_when: false
+
+- name: Delete valkey PVCs
+  ansible.builtin.command:
+    cmd: kubectl -n {{ valkey_namespace }} delete pvc -l app.kubernetes.io/instance=valkey --ignore-not-found
+  changed_when: false
+  when: valkey_purge_data | bool

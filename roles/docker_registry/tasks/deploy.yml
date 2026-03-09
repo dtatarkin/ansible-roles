@@ -1,0 +1,12 @@
+---
+- name: Deploy docker-registry-ui HelmChart manifest
+  ansible.builtin.template:
+    src: docker-registry-helmchart.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/docker-registry-helmchart.yml
+    mode: "0600"
+
+- name: Deploy docker-registry NodePort service manifest
+  ansible.builtin.template:
+    src: docker-registry-nodeport.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/docker-registry-nodeport.yml
+    mode: "0600"

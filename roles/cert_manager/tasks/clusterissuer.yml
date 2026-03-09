@@ -1,0 +1,6 @@
+---
+- name: Deploy ClusterIssuer manifest
+  ansible.builtin.template:
+    src: cert-manager-clusterissuer.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/cert-manager-clusterissuer.yml
+    mode: "0600"

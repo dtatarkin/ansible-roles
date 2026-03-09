@@ -1,0 +1,11 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: cert-manager-webhook-yandex
+  namespace: kube-system
+spec:
+  repo: https://yandex-cloud.github.io/cert-manager-webhook-yandex
+  chart: cert-manager-webhook-yandex
+  version: {{ cert_manager_webhook_yandex_chart_version }}
+  targetNamespace: {{ cert_manager_webhook_yandex_namespace }}
+  createNamespace: false

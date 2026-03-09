@@ -1,0 +1,11 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: cnpg
+  namespace: kube-system
+spec:
+  repo: {{ cnpg_chart_repo }}
+  chart: cloudnative-pg
+  version: {{ cnpg_chart_version }}
+  targetNamespace: {{ cnpg_operator_namespace }}
+  createNamespace: true

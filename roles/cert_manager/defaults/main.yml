@@ -1,0 +1,14 @@
+---
+cert_manager_state: present
+cert_manager_chart_version: "v1.17.1"
+cert_manager_chart_repo: "https://charts.jetstack.io"
+cert_manager_namespace: cert-manager
+
+# Let's Encrypt ACME settings
+cert_manager_acme_server: "https://acme-v02.api.letsencrypt.org/directory"
+cert_manager_clusterissuer_name: letsencrypt-production
+
+# Solver type: 'http01' or 'dns01'
+cert_manager_solver_type: http01
+# Required when solver_type is 'dns01' with Yandex Cloud DNS
+cert_manager_yandex_dns_folder_id: ""

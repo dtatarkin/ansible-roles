@@ -1,0 +1,12 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: woodpecker
+  namespace: kube-system
+spec:
+  repo: {{ woodpecker_chart_repo }}
+  chart: woodpecker
+  version: {{ woodpecker_chart_version }}
+  targetNamespace: {{ woodpecker_namespace }}
+  valuesContent: |-
+    {{ lookup('template', 'woodpecker-values.yml.j2') | indent(4) }}

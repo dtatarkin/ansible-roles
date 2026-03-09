@@ -1,0 +1,24 @@
+---
+- name: Login to private Docker registry on host
+  community.docker.docker_login:
+    registry_url: "https://registry.{{ infra_domain }}"
+    username: admin
+    password: "{{ woodpecker_docker_registry_password }}"
+  no_log: true
+
+- name: Run woodpecker-agent Docker container
+  community.docker.docker_container:
+    name: woodpecker-agent
+    image: "{{ woodpecker_agent_image }}:{{ woodpecker_agent_image_tag }}"
+    state: started
+    restart_policy: unless-stopped
+    network_mode: host
+    env:
+      WOODPECKER_SERVER: "localhost:{{ woodpecker_agent_grpc_port }}"
+      WOODPECKER_AGENT_SECRET: "{{ woodpecker_agent_secret }}"
+      WOODPECKER_MAX_PROCS: "{{ woodpecker_agent_max_procs | string }}"
+      WOODPECKER_BACKEND: docker
+      WOODPECKER_BACKEND_DOCKER_VOLUMES: "{{ woodpecker_agent_backend_volumes | join(',') }}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+  no_log: true

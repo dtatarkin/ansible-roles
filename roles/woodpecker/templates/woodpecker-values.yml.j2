@@ -1,0 +1,43 @@
+server:
+  env:
+    WOODPECKER_HOST: "https://{{ woodpecker_domain }}"
+    WOODPECKER_DATABASE_DRIVER: postgres
+    WOODPECKER_DATABASE_DATASOURCE: "postgres://{{ woodpecker_db_user }}:{{ woodpecker_db_password }}@{{ woodpecker_db_host }}:{{ woodpecker_db_port }}/{{ woodpecker_db_name }}?sslmode={{ woodpecker_db_sslmode }}"
+    WOODPECKER_OPEN: "{{ woodpecker_open_registration | string | lower }}"
+    WOODPECKER_GITHUB: "true"
+    WOODPECKER_GITHUB_CLIENT: "{{ woodpecker_github_client }}"
+    WOODPECKER_GITHUB_SECRET: "{{ woodpecker_github_secret }}"
+    WOODPECKER_ADMIN: "{{ woodpecker_admin }}"
+    WOODPECKER_PLUGINS_PRIVILEGED: "woodpeckerci/plugin-docker-buildx"
+    WOODPECKER_AGENT_SECRET: "{{ woodpecker_agent_secret }}"
+    WOODPECKER_DOCKER_CONFIG: "/etc/woodpecker/docker-config/config.json"
+
+  extraVolumes:
+    - name: docker-config
+      secret:
+        secretName: woodpecker-docker-config
+
+  extraVolumeMounts:
+    - name: docker-config
+      mountPath: /etc/woodpecker/docker-config
+      readOnly: true
+
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+    annotations:
+      cert-manager.io/cluster-issuer: "{{ woodpecker_clusterissuer }}"
+    hosts:
+      - host: "{{ woodpecker_domain }}"
+        paths:
+          - path: /
+    tls:
+      - secretName: woodpecker-tls
+        hosts:
+          - "{{ woodpecker_domain }}"
+
+  persistentVolume:
+    enabled: false
+
+agent:
+  enabled: false

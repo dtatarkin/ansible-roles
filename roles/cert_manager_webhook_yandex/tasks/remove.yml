@@ -1,0 +1,22 @@
+---
+- name: Remove webhook HelmChart manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/cert-manager-webhook-yandex-helmchart.yml
+    state: absent
+
+- name: Remove webhook SA key secret manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/cert-manager-webhook-yandex-secret.yml
+    state: absent
+
+- name: Delete webhook HelmChart resource
+  ansible.builtin.command:
+    cmd: kubectl delete helmchart cert-manager-webhook-yandex -n kube-system --ignore-not-found
+  changed_when: "'deleted' in cert_manager_webhook_yandex_helmchart_delete.stdout"
+  register: cert_manager_webhook_yandex_helmchart_delete
+
+- name: Delete webhook SA key secret
+  ansible.builtin.command:
+    cmd: kubectl delete secret cert-manager-webhook-yandex-secret -n {{ cert_manager_webhook_yandex_namespace }} --ignore-not-found
+  changed_when: "'deleted' in cert_manager_webhook_yandex_secret_delete.stdout"
+  register: cert_manager_webhook_yandex_secret_delete

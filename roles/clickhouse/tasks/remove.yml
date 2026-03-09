@@ -1,0 +1,46 @@
+---
+- name: Remove clickhouse HelmChart manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/clickhouse-helmchart.yml
+    state: absent
+
+- name: Remove clickhouse secret manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/clickhouse-secret.yml
+    state: absent
+
+- name: Remove clickhouse NodePort manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/clickhouse-nodeport.yml
+    state: absent
+
+- name: Delete clickhouse HelmChart CRD to trigger Helm uninstall
+  ansible.builtin.command:
+    cmd: kubectl -n kube-system delete helmchart clickhouse --ignore-not-found
+  changed_when: false
+
+- name: Wait for K3s to uninstall clickhouse Helm release
+  ansible.builtin.command:
+    cmd: kubectl -n {{ clickhouse_namespace }} get statefulset clickhouse
+  register: clickhouse_check
+  changed_when: false
+  failed_when: false
+  retries: 20
+  delay: 15
+  until: clickhouse_check.rc != 0
+
+- name: Delete clickhouse secret from cluster
+  ansible.builtin.command:
+    cmd: kubectl -n {{ clickhouse_namespace }} delete secret clickhouse-credentials --ignore-not-found
+  changed_when: false
+
+- name: Delete clickhouse NodePort service from cluster
+  ansible.builtin.command:
+    cmd: kubectl -n {{ clickhouse_namespace }} delete service clickhouse-nodeport --ignore-not-found
+  changed_when: false
+
+- name: Delete clickhouse PVCs
+  ansible.builtin.command:
+    cmd: kubectl -n {{ clickhouse_namespace }} delete pvc -l app.kubernetes.io/instance=clickhouse --ignore-not-found
+  changed_when: false
+  when: clickhouse_purge_data | bool

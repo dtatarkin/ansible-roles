@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  role_name: docker_registry
+  description: Deploy or remove a private Docker registry on K3s
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+
+dependencies: []

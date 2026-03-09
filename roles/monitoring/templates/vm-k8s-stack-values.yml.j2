@@ -1,0 +1,165 @@
+# Shorten resource names to stay within 63-char label limit
+fullnameOverride: vmstack
+
+# VMSingle (time-series database)
+vmsingle:
+  spec:
+    retentionPeriod: "{{ monitoring_retention_period }}"
+    extraArgs:
+      memory.allowedBytes: "{{ monitoring_vmsingle_memory_allowed_bytes }}"
+    storage:
+      storageClassName: {{ monitoring_storage_class }}
+      resources:
+        requests:
+          storage: {{ monitoring_storage_size }}
+    resources:
+      requests:
+        cpu: "{{ monitoring_vmsingle_resources.requests.cpu }}"
+        memory: "{{ monitoring_vmsingle_resources.requests.memory }}"
+{% if monitoring_vmsingle_resources.limits is defined %}
+      limits:
+        cpu: "{{ monitoring_vmsingle_resources.limits.cpu }}"
+        memory: "{{ monitoring_vmsingle_resources.limits.memory }}"
+{% endif %}
+
+# vmagent (metrics scraper)
+vmagent:
+  spec:
+    scrapeInterval: "{{ monitoring_scrape_interval }}"
+    resources:
+      requests:
+        cpu: "{{ monitoring_vmagent_resources.requests.cpu }}"
+        memory: "{{ monitoring_vmagent_resources.requests.memory }}"
+{% if monitoring_vmagent_resources.limits is defined %}
+      limits:
+        cpu: "{{ monitoring_vmagent_resources.limits.cpu }}"
+        memory: "{{ monitoring_vmagent_resources.limits.memory }}"
+{% endif %}
+
+# vmalert (alerting rules evaluation)
+vmalert:
+  spec:
+    evaluationInterval: "{{ monitoring_evaluation_interval }}"
+    resources:
+      requests:
+        cpu: "{{ monitoring_vmalert_resources.requests.cpu }}"
+        memory: "{{ monitoring_vmalert_resources.requests.memory }}"
+{% if monitoring_vmalert_resources.limits is defined %}
+      limits:
+        cpu: "{{ monitoring_vmalert_resources.limits.cpu }}"
+        memory: "{{ monitoring_vmalert_resources.limits.memory }}"
+{% endif %}
+
+# Alertmanager
+alertmanager:
+  spec:
+    resources:
+      requests:
+        cpu: "{{ monitoring_alertmanager_resources.requests.cpu }}"
+        memory: "{{ monitoring_alertmanager_resources.requests.memory }}"
+{% if monitoring_alertmanager_resources.limits is defined %}
+      limits:
+        cpu: "{{ monitoring_alertmanager_resources.limits.cpu }}"
+        memory: "{{ monitoring_alertmanager_resources.limits.memory }}"
+{% endif %}
+  config:
+    route:
+      receiver: {{ monitoring_alertmanager_receiver }}
+    receivers:
+      - name: {{ monitoring_alertmanager_receiver }}
+
+# Grafana
+grafana:
+  adminPassword: "{{ monitoring_grafana_admin_password }}"
+  persistence:
+    enabled: true
+    storageClassName: {{ monitoring_grafana_storage_class }}
+    size: {{ monitoring_grafana_storage_size }}
+  service:
+    type: NodePort
+    nodePort: {{ monitoring_grafana_node_port }}
+  ingress:
+    enabled: true
+    ingressClassName: traefik
+{% if monitoring_grafana_tls_enabled | default(false) %}
+    annotations:
+      cert-manager.io/cluster-issuer: {{ monitoring_grafana_clusterissuer }}
+{% endif %}
+    hosts:
+{% if monitoring_grafana_hostname is defined %}
+      - {{ monitoring_grafana_hostname }}
+{% endif %}
+{% if monitoring_grafana_public_hostname is defined %}
+      - {{ monitoring_grafana_public_hostname }}
+{% endif %}
+{% if monitoring_grafana_tls_enabled | default(false) and monitoring_grafana_public_hostname is defined %}
+    tls:
+      - secretName: grafana-tls
+        hosts:
+          - {{ monitoring_grafana_public_hostname }}
+{% endif %}
+  sidecar:
+    dashboards:
+      enabled: true
+    datasources:
+      enabled: true
+  resources:
+    requests:
+      cpu: "{{ monitoring_grafana_resources.requests.cpu }}"
+      memory: "{{ monitoring_grafana_resources.requests.memory }}"
+{% if monitoring_grafana_resources.limits is defined %}
+    limits:
+      cpu: "{{ monitoring_grafana_resources.limits.cpu }}"
+      memory: "{{ monitoring_grafana_resources.limits.memory }}"
+{% endif %}
+
+# kube-state-metrics
+kube-state-metrics:
+  resources:
+    requests:
+      cpu: "{{ monitoring_kube_state_metrics_resources.requests.cpu }}"
+      memory: "{{ monitoring_kube_state_metrics_resources.requests.memory }}"
+{% if monitoring_kube_state_metrics_resources.limits is defined %}
+    limits:
+      cpu: "{{ monitoring_kube_state_metrics_resources.limits.cpu }}"
+      memory: "{{ monitoring_kube_state_metrics_resources.limits.memory }}"
+{% endif %}
+
+# node-exporter (DaemonSet)
+prometheus-node-exporter:
+  resources:
+    requests:
+      cpu: "{{ monitoring_node_exporter_resources.requests.cpu }}"
+      memory: "{{ monitoring_node_exporter_resources.requests.memory }}"
+{% if monitoring_node_exporter_resources.limits is defined %}
+    limits:
+      cpu: "{{ monitoring_node_exporter_resources.limits.cpu }}"
+      memory: "{{ monitoring_node_exporter_resources.limits.memory }}"
+{% endif %}
+
+# Scrape targets
+kubelet:
+  enabled: true
+kubeApiServer:
+  enabled: true
+kubeControllerManager:
+  enabled: true
+kubeScheduler:
+  enabled: true
+coreDns:
+  enabled: true
+
+# Disabled: k3s uses SQLite, not etcd
+kubeEtcd:
+  enabled: false
+# Disabled: k3s doesn't use kube-proxy
+kubeProxy:
+  enabled: false
+
+# Enable all default alerting rules
+defaultRules:
+  create: true
+
+# Enable all default dashboards
+defaultDashboards:
+  enabled: true

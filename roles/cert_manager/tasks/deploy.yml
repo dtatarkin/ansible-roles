@@ -1,0 +1,6 @@
+---
+- name: Deploy cert-manager HelmChart manifest
+  ansible.builtin.template:
+    src: cert-manager-helmchart.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/cert-manager-helmchart.yml
+    mode: "0600"

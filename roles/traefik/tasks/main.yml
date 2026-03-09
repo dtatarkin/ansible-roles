@@ -1,0 +1,6 @@
+---
+- name: Deploy Traefik configuration
+  ansible.builtin.include_tasks: deploy.yml
+
+- name: Verify Traefik
+  ansible.builtin.include_tasks: verify.yml

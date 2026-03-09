@@ -1,0 +1,6 @@
+{% if traefik_redirect_https %}
+ports:
+  web:
+    middlewares:
+      - kube-system-redirect-to-https@kubernetescrd
+{% endif %}

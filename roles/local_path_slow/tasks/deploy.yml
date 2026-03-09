@@ -1,0 +1,8 @@
+---
+- name: Deploy local-path-slow manifest
+  ansible.builtin.template:
+    src: local-path-slow.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/local-path-slow.yml
+    owner: root
+    group: root
+    mode: "0600"

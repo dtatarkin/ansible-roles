@@ -1,0 +1,41 @@
+---
+
+# Role state: 'present' to deploy, 'absent' to remove
+cnpg_state: present
+# Set to true to delete PVCs when state is absent
+cnpg_purge_data: false
+
+# CloudNativePG operator Helm chart settings
+cnpg_chart_version: "0.27.1"
+cnpg_chart_repo: "https://cloudnative-pg.github.io/charts"
+cnpg_operator_namespace: cnpg-system
+
+# PostgreSQL Cluster settings
+cnpg_namespace: postgres
+cnpg_cluster_name: postgres
+cnpg_instances: 1
+cnpg_pg_image: "ghcr.io/cloudnative-pg/postgresql:17.4"
+cnpg_storage_class: local-path
+cnpg_storage_size: 5Gi
+cnpg_node_port: 30000
+
+# Initial database and owner created during bootstrap
+cnpg_bootstrap_database: app
+cnpg_bootstrap_owner: app
+
+# Additional databases to create via Database CRD
+# Example:
+# - name: app2
+#   owner: app2_owner
+#   extensions: ["uuid-ossp"]
+cnpg_databases: []
+
+# Additional users to create via managed.roles
+# Example:
+# - name: app_reader
+#   access_level: read
+#   database: app
+# - name: app_writer
+#   access_level: write
+#   database: app
+cnpg_users: []

@@ -1,0 +1,22 @@
+---
+
+# Role state: 'present' to deploy, 'absent' to remove
+clickhouse_state: present
+# Set to true to delete PVCs when state is absent
+clickhouse_purge_data: false
+# sinextra ClickHouse Helm chart settings
+# Uses official clickhouse/clickhouse-server image
+
+clickhouse_chart_version: "0.14.0"
+clickhouse_chart_repo: "https://helm-charts.sinextra.dev"
+clickhouse_namespace: clickhouse
+clickhouse_storage_class: local-path
+clickhouse_storage_size: 5Gi
+clickhouse_node_port_tcp: 30000
+clickhouse_node_port_http: 30001
+
+# Resource requests (tuned for cx23 instances)
+clickhouse_resources:
+  requests:
+    cpu: 200m
+    memory: 512Mi

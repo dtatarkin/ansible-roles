@@ -1,0 +1,8 @@
+---
+- name: Deploy cert-manager webhook for Yandex Cloud DNS
+  ansible.builtin.include_tasks: deploy.yml
+  when: cert_manager_webhook_yandex_state == 'present'
+
+- name: Remove cert-manager webhook for Yandex Cloud DNS
+  ansible.builtin.include_tasks: remove.yml
+  when: cert_manager_webhook_yandex_state == 'absent'

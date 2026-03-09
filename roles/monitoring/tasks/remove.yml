@@ -1,0 +1,32 @@
+---
+- name: Remove vm-k8s-stack HelmChart manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/vm-k8s-stack-helmchart.yml
+    state: absent
+
+- name: Delete vm-k8s-stack HelmChart CRD to trigger Helm uninstall
+  ansible.builtin.command:
+    cmd: kubectl -n kube-system delete helmchart vm-k8s-stack --ignore-not-found
+  changed_when: false
+
+- name: Wait for K3s to uninstall monitoring Helm release
+  ansible.builtin.command:
+    cmd: kubectl -n {{ monitoring_namespace }} get deployment vm-k8s-stack-victoria-metrics-operator -o name
+  register: monitoring_check
+  changed_when: false
+  failed_when: false
+  retries: 20
+  delay: 15
+  until: monitoring_check.stdout == ""
+
+- name: Delete monitoring PVCs
+  ansible.builtin.command:
+    cmd: kubectl -n {{ monitoring_namespace }} delete pvc --all --ignore-not-found
+  changed_when: false
+  when: monitoring_purge_data | bool
+
+- name: Delete monitoring namespace
+  ansible.builtin.command:
+    cmd: kubectl delete namespace {{ monitoring_namespace }} --ignore-not-found
+  changed_when: false
+  when: monitoring_purge_data | bool

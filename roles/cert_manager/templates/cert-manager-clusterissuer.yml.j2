@@ -1,0 +1,26 @@
+apiVersion: cert-manager.io/v1
+kind: ClusterIssuer
+metadata:
+  name: {{ cert_manager_clusterissuer_name }}
+spec:
+  acme:
+    email: {{ cert_manager_acme_email }}
+    server: {{ cert_manager_acme_server }}
+    privateKeySecretRef:
+      name: letsencrypt-production-account-key
+    solvers:
+{% if cert_manager_solver_type == 'dns01' %}
+      - dns01:
+          webhook:
+            groupName: acme.cloud.yandex.com
+            solverName: yandex-cloud-dns
+            config:
+              folder: {{ cert_manager_yandex_dns_folder_id }}
+              serviceAccountSecretRef:
+                name: cert-manager-webhook-yandex-secret
+                key: iamkey.json
+{% else %}
+      - http01:
+          ingress:
+            ingressClassName: traefik
+{% endif %}

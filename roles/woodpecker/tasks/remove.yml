@@ -1,0 +1,54 @@
+---
+- name: Stop and remove woodpecker-agent Docker container
+  community.docker.docker_container:
+    name: woodpecker-agent
+    state: absent
+
+- name: Remove woodpecker HelmChart manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/woodpecker-helmchart.yml
+    state: absent
+
+- name: Delete woodpecker HelmChart CRD to trigger Helm uninstall
+  ansible.builtin.command:
+    cmd: kubectl -n kube-system delete helmchart woodpecker --ignore-not-found
+  register: woodpecker_helmchart_delete
+  changed_when: "'deleted' in woodpecker_helmchart_delete.stdout"
+
+- name: Wait for K3s to uninstall woodpecker Helm release
+  ansible.builtin.command:
+    cmd: kubectl -n {{ woodpecker_namespace }} get statefulset woodpecker-server
+  register: woodpecker_check
+  changed_when: false
+  failed_when: false
+  retries: 20
+  delay: 15
+  until: woodpecker_check.rc != 0
+
+- name: Remove woodpecker docker-config secret manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/woodpecker-docker-config-secret.yml
+    state: absent
+
+- name: Remove woodpecker gRPC NodePort manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/woodpecker-grpc-nodeport.yml
+    state: absent
+
+- name: Remove woodpecker namespace manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/woodpecker-namespace.yml
+    state: absent
+
+- name: Delete woodpecker PVCs
+  ansible.builtin.command:
+    cmd: kubectl -n {{ woodpecker_namespace }} delete pvc -l app.kubernetes.io/instance=woodpecker --ignore-not-found
+  register: woodpecker_pvc_delete
+  changed_when: "'deleted' in woodpecker_pvc_delete.stdout"
+  when: woodpecker_purge_data | bool
+
+- name: Remove host cache directories
+  ansible.builtin.file:
+    path: "{{ woodpecker_host_cache_dir }}"
+    state: absent
+  when: woodpecker_purge_data | bool

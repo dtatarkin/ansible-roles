@@ -1,0 +1,74 @@
+pki:
+  ca: {{ nebula_ca_cert_path }}
+  cert: {{ nebula_host_cert_path }}
+  key: {{ nebula_host_key_path }}
+
+static_host_map:
+{% for nebula_ip, endpoints in nebula_lighthouse_map.items() %}
+  "{{ nebula_ip }}":
+{% for endpoint in endpoints %}
+    - "{{ endpoint }}"
+{% endfor %}
+{% endfor %}
+
+lighthouse:
+  am_lighthouse: {{ nebula_am_lighthouse | lower }}
+{% if not nebula_am_lighthouse %}
+  hosts:
+{% for nebula_ip in nebula_lighthouse_map.keys() %}
+    - "{{ nebula_ip }}"
+{% endfor %}
+{% endif %}
+  interval: 60
+
+listen:
+  host: 0.0.0.0
+  port: {{ nebula_listen_port }}
+
+punchy:
+  punch: true
+
+relay:
+  am_relay: {{ nebula_relay_am_relay | default(false) | lower }}
+  use_relays: true
+
+tun:
+  disabled: false
+  dev: {{ nebula_tun_dev }}
+  drop_local_broadcast: false
+  drop_multicast: false
+  tx_queue: 500
+  mtu: 1300
+
+logging:
+  level: info
+  format: text
+
+firewall:
+  conntrack:
+    tcp_timeout: 12m
+    udp_timeout: 3m
+    default_timeout: 10m
+
+  outbound:
+    - port: any
+      proto: any
+      host: any
+
+  inbound:
+    - port: any
+      proto: icmp
+      host: any
+{% if nebula_am_lighthouse %}
+    - port: {{ nebula_listen_port }}
+      proto: any
+      host: any
+{% endif %}
+{% for rule in nebula_firewall_inbound_extra | default([]) %}
+    - port: {{ rule.port }}
+      proto: {{ rule.proto | default('any') }}
+      {% if rule.host is defined %}host: {{ rule.host }}{% endif %}
+      {% if rule.group is defined %}group: {{ rule.group }}{% endif %}
+      {% if rule.cidr is defined %}cidr: {{ rule.cidr }}{% endif %}
+
+{% endfor %}

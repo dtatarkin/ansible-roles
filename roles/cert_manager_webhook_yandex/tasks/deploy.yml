@@ -1,0 +1,12 @@
+---
+- name: Deploy webhook SA key secret manifest
+  ansible.builtin.template:
+    src: webhook-sa-secret.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/cert-manager-webhook-yandex-secret.yml
+    mode: "0600"
+
+- name: Deploy webhook HelmChart manifest
+  ansible.builtin.template:
+    src: webhook-helmchart.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/cert-manager-webhook-yandex-helmchart.yml
+    mode: "0600"

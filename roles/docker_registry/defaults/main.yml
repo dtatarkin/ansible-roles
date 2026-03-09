@@ -1,0 +1,23 @@
+---
+
+# Role state: 'present' to deploy, 'absent' to remove
+docker_registry_state: present
+# Set to true to delete PVCs when state is absent
+docker_registry_purge_data: false
+docker_registry_namespace: docker-registry
+docker_registry_chart_repo: https://helm.joxit.dev
+docker_registry_chart_version: 1.1.3
+docker_registry_app_version: 2.5.2
+
+docker_registry_storage_class: local-path
+
+docker_registry_storage_size: 5Gi
+
+docker_registry_node_port: 30000
+
+docker_registry_hostname: "registry.{{ infra_domain }}"
+docker_registry_tls_enabled: true
+docker_registry_clusterissuer: letsencrypt-production
+
+docker_registry_admin_user: admin
+# docker_registry_password: (from SOPS)

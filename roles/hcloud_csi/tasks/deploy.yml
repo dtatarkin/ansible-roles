@@ -1,0 +1,6 @@
+---
+- name: Deploy hcloud-csi HelmChart manifest
+  ansible.builtin.template:
+    src: hcloud-csi-helmchart.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/hcloud-csi-helmchart.yml
+    mode: "0600"

@@ -1,0 +1,35 @@
+fullnameOverride: clickhouse
+
+image:
+  tag: latest
+
+installationType: standalone
+replicaCount: 1
+
+clickhouse:
+  users:
+    - name: default
+      profile: default
+      quota: default
+      password:
+        secretKeyRef:
+          name: clickhouse-credentials
+          key: default-password-sha256
+
+service:
+  type: ClusterIP
+
+persistence:
+  enabled: true
+  storageClass: {{ clickhouse_storage_class }}
+  size: {{ clickhouse_storage_size }}
+
+resources:
+  requests:
+    cpu: "{{ clickhouse_resources.requests.cpu }}"
+    memory: "{{ clickhouse_resources.requests.memory }}"
+{% if clickhouse_resources.limits is defined %}
+  limits:
+    cpu: "{{ clickhouse_resources.limits.cpu }}"
+    memory: "{{ clickhouse_resources.limits.memory }}"
+{% endif %}

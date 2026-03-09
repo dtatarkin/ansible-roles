@@ -1,0 +1,11 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: hcloud-csi
+  namespace: kube-system
+spec:
+  repo: {{ hcloud_csi_chart_repo }}
+  chart: hcloud-csi
+  version: {{ hcloud_csi_chart_version }}
+  targetNamespace: {{ hcloud_csi_namespace }}
+  createNamespace: true

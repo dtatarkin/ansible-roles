@@ -1,0 +1,8 @@
+---
+local_path_slow_state: present
+local_path_slow_provisioner_name: rancher.io/local-path-slow
+local_path_slow_storage_class: local-path
+local_path_slow_namespace: kube-system
+local_path_slow_image: rancher/local-path-provisioner:v0.0.34
+local_path_slow_helper_image: rancher/mirrored-library-busybox:1.37.0
+local_path_slow_volume_mount: /mnt/k3s-slow-storage

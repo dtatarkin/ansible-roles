@@ -1,0 +1,3 @@
+---
+hcloud_volumes_state: present
+hcloud_volumes_fstype: ext4

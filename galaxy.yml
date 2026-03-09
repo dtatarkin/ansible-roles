@@ -1,0 +1,16 @@
+---
+namespace: dtatarkin
+name: infra
+version: 1.0.0
+readme: README.md
+authors:
+  - dtatarkin
+description: Infrastructure roles for VPS provisioning with Nebula, K3s, and related services
+license:
+  - MIT
+repository: https://github.com/dtatarkin/ansible-roles
+tags:
+  - infrastructure
+  - nebula
+  - k3s
+  - hetzner

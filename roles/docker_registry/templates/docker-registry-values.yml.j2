@@ -1,0 +1,41 @@
+registry:
+  enabled: true
+  image: registry:2.8.2
+  dataVolume:
+    persistentVolumeClaim:
+      claimName: registry-data-pvc
+  auth:
+    basic:
+      enabled: true
+      secretName: registry-htpasswd
+  ingress:
+    enabled: true
+    host: {{ docker_registry_hostname }}
+    path: /v2/
+    pathType: Prefix
+    ingressClassName: traefik
+    tls:
+      - secretName: registry-tls
+        hosts:
+          - {{ docker_registry_hostname }}
+    annotations:
+      cert-manager.io/cluster-issuer: {{ docker_registry_clusterissuer }}
+
+
+ui:
+  proxy: true
+  registrySecured: true
+  singleRegistry: true
+  deleteImages: true
+  ingress:
+    enabled: true
+    host: {{ docker_registry_hostname }}
+    path: /
+    pathType: Prefix
+    ingressClassName: traefik
+    tls:
+      - secretName: registry-ui-tls
+        hosts:
+          - {{ docker_registry_hostname }}
+    annotations:
+      cert-manager.io/cluster-issuer: {{ docker_registry_clusterissuer }}

@@ -1,0 +1,19 @@
+---
+- name: Wait for Traefik deployment
+  ansible.builtin.command:
+    cmd: kubectl -n kube-system rollout status deployment/traefik --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 10
+  register: traefik_rollout
+  until: traefik_rollout.rc == 0
+
+- name: Show Traefik pods
+  ansible.builtin.command:
+    cmd: kubectl -n kube-system get pods -l app.kubernetes.io/name=traefik -o wide
+  changed_when: false
+  register: traefik_pods
+
+- name: Print Traefik pod status
+  ansible.builtin.debug:
+    var: traefik_pods.stdout_lines

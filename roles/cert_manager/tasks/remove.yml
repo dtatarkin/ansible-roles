@@ -1,0 +1,22 @@
+---
+- name: Remove cert-manager ClusterIssuer manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/cert-manager-clusterissuer.yml
+    state: absent
+
+- name: Remove cert-manager HelmChart manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/cert-manager-helmchart.yml
+    state: absent
+
+- name: Delete cert-manager ClusterIssuer resource
+  ansible.builtin.command:
+    cmd: kubectl delete clusterissuer {{ cert_manager_clusterissuer_name }} --ignore-not-found
+  changed_when: "'deleted' in cert_manager_clusterissuer_delete.stdout"
+  register: cert_manager_clusterissuer_delete
+
+- name: Delete cert-manager HelmChart resource
+  ansible.builtin.command:
+    cmd: kubectl delete helmchart cert-manager -n kube-system --ignore-not-found
+  changed_when: "'deleted' in cert_manager_helmchart_delete.stdout"
+  register: cert_manager_helmchart_delete
