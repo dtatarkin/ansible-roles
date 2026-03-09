@@ -26,8 +26,8 @@ docker_registry_admin_user: admin
 docker_registry_storage_backend: filesystem
 
 # S3 storage settings (used when storage_backend is 's3')
-docker_registry_s3_region: kz1
-docker_registry_s3_regionendpoint: "https://storage.yandexcloud.kz"
-docker_registry_s3_bucket: ""
+docker_registry_s3_region: ru-central1
+docker_registry_s3_regionendpoint: "https://storage.yandexcloud.net"
+docker_registry_s3_bucket: "docker_registry"
 # docker_registry_s3_access_key: (from SOPS)
 # docker_registry_s3_secret_key: (from SOPS)
