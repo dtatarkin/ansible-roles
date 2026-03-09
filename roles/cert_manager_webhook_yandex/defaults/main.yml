@@ -1,6 +1,0 @@
----
-cert_manager_webhook_yandex_state: present
-cert_manager_webhook_yandex_chart_version: "0.108.0"
-cert_manager_webhook_yandex_namespace: cert-manager
-cert_manager_webhook_yandex_folder_id: ""
-cert_manager_webhook_yandex_sa_key_path: "~/.config/yandex-cloud/viberia-sa-key.json"
