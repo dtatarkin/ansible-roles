@@ -71,6 +71,8 @@ alertmanager:
 # Grafana
 grafana:
   adminPassword: "{{ monitoring_grafana_admin_password }}"
+  deploymentStrategy:
+    type: Recreate
   persistence:
     enabled: true
     storageClassName: {{ monitoring_grafana_storage_class }}
