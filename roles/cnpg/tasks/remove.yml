@@ -14,7 +14,11 @@
 - name: Delete PostgreSQL Cluster CRD to trigger cleanup
   ansible.builtin.command:
     cmd: kubectl -n {{ cnpg_namespace }} delete cluster {{ cnpg_cluster_name }} --ignore-not-found
+  register: cnpg_cluster_delete
   changed_when: false
+  failed_when:
+    - cnpg_cluster_delete.rc != 0
+    - '"the server doesn''t have a resource type" not in cnpg_cluster_delete.stderr'
 
 - name: Wait for PostgreSQL cluster pods to terminate
   ansible.builtin.command:
