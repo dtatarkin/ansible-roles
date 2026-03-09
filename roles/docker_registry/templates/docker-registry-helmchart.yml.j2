@@ -11,6 +11,7 @@ spec:
   createNamespace: true
   valuesContent: |-
     {{ lookup('template', 'docker-registry-values.yml.j2') | indent(4) }}
+{% if docker_registry_storage_backend == 'filesystem' %}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -24,3 +25,4 @@ spec:
   resources:
     requests:
       storage: {{ docker_registry_storage_size }}
+{% endif %}

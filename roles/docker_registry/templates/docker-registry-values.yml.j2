@@ -1,9 +1,20 @@
 registry:
   enabled: true
   image: registry:2.8.2
+{% if docker_registry_storage_backend == 's3' %}
+  configData:
+    storage:
+      s3:
+        region: {{ docker_registry_s3_region }}
+        regionendpoint: {{ docker_registry_s3_regionendpoint }}
+        bucket: {{ docker_registry_s3_bucket }}
+        accesskey: {{ docker_registry_s3_access_key }}
+        secretkey: {{ docker_registry_s3_secret_key }}
+{% else %}
   dataVolume:
     persistentVolumeClaim:
       claimName: registry-data-pvc
+{% endif %}
   auth:
     basic:
       enabled: true
