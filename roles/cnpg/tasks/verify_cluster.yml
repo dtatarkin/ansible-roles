@@ -4,8 +4,8 @@
     cmd: kubectl -n {{ cnpg_namespace }} get cluster {{ cnpg_cluster_name }} -o jsonpath='{.status.phase}'
   changed_when: false
   register: cnpg_cluster_phase
-  retries: 40
-  delay: 15
+  retries: 120
+  delay: 5
   until: cnpg_cluster_phase.stdout == 'Cluster in healthy state'
 
 - name: Show PostgreSQL Cluster status
