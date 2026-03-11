@@ -1,9 +1,22 @@
 ---
+- name: Remove CNPG database manifests
+  ansible.builtin.file:
+    path: "/var/lib/rancher/k3s/server/manifests/cnpg-database-{{ item.name | replace('_', '-') }}.yml"
+    state: absent
+  loop: "{{ cnpg_databases }}"
+  when: cnpg_databases | length > 0
+
+- name: Remove CNPG user secret manifests
+  ansible.builtin.file:
+    path: "/var/lib/rancher/k3s/server/manifests/cnpg-user-{{ item.name | replace('_', '-') }}-secret.yml"
+    state: absent
+  loop: "{{ cnpg_users }}"
+  when: cnpg_users | length > 0
+
 - name: Remove CNPG cluster manifest
   ansible.builtin.file:
     path: /var/lib/rancher/k3s/server/manifests/cnpg-cluster.yml
     state: absent
-
 
 - name: Remove CNPG cluster namespace manifest
   ansible.builtin.file:
@@ -63,7 +76,14 @@
 
 - name: Delete CNPG secrets from cluster
   ansible.builtin.command:
-    cmd: kubectl -n {{ cnpg_namespace }} delete secret cnpg-superuser cnpg-app --ignore-not-found
+    argv: >-
+      {{ ['kubectl', '-n', cnpg_namespace, 'delete', 'secret',
+          'cnpg-superuser', 'cnpg-app']
+         + (cnpg_users | map(attribute='name')
+            | map('replace', '_', '-')
+            | map('regex_replace', '^', 'cnpg-user-')
+            | list)
+         + ['--ignore-not-found'] }}
   changed_when: false
 
 - name: Delete CNPG PVCs
