@@ -8,7 +8,7 @@
 - name: Deploy CNPG additional database manifests
   ansible.builtin.template:
     src: cnpg-database.yml.j2
-    dest: "/var/lib/rancher/k3s/server/manifests/cnpg-database-{{ item.name }}.yml"
+    dest: "/var/lib/rancher/k3s/server/manifests/cnpg-database-{{ item.name | replace('_', '-') }}.yml"
     mode: "0600"
   loop: "{{ cnpg_databases }}"
   when: cnpg_state == 'present' and (cnpg_databases | length > 0)

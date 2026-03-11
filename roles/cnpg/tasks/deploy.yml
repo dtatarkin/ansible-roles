@@ -30,7 +30,7 @@
 - name: Deploy CNPG user secrets manifest
   ansible.builtin.template:
     src: cnpg-user-secret.yml.j2
-    dest: "/var/lib/rancher/k3s/server/manifests/cnpg-user-{{ item.name }}-secret.yml"
+    dest: "/var/lib/rancher/k3s/server/manifests/cnpg-user-{{ item.name | replace('_', '-') }}-secret.yml"
     mode: "0600"
   loop: "{{ cnpg_users }}"
   no_log: true

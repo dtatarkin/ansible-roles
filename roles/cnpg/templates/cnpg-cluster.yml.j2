@@ -43,7 +43,7 @@ spec:
         superuser: false
         createdb: {{ 'true' if user.access_level | default('') == 'owner' else 'false' }}
         passwordSecret:
-          name: cnpg-user-{{ user.name }}
+          name: cnpg-user-{{ user.name | replace('_', '-') }}
 {% endfor %}
     services:
       additional:

@@ -1,7 +1,7 @@
 apiVersion: postgresql.cnpg.io/v1
 kind: Database
 metadata:
-  name: {{ cnpg_cluster_name }}-db-{{ item.name }}
+  name: {{ cnpg_cluster_name }}-db-{{ item.name | replace('_', '-') }}
   namespace: {{ cnpg_namespace }}
 spec:
   name: {{ item.name }}
