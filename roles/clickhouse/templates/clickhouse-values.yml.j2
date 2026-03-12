@@ -7,6 +7,7 @@ installationType: standalone
 replicaCount: 1
 
 clickhouse:
+  accessManagement: {{ (clickhouse_users | length > 0) | lower }}
   users:
     - name: default
       profile: default
@@ -15,15 +16,6 @@ clickhouse:
         secretKeyRef:
           name: clickhouse-credentials
           key: default-password-sha256
-{% for user in clickhouse_users %}
-    - name: {{ user.name }}
-      profile: default
-      quota: default
-      password:
-        secretKeyRef:
-          name: clickhouse-credentials
-          key: {{ user.name | replace('_', '-') }}-password-sha256
-{% endfor %}
 
 service:
   type: ClusterIP

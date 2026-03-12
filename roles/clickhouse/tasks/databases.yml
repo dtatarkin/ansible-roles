@@ -1,30 +1,42 @@
 ---
+- name: Wait for ClickHouse to be ready
+  ansible.builtin.command:
+    cmd: kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 -- clickhouse-client --query "SELECT 1"
+  changed_when: false
+  retries: 12
+  delay: 10
+  register: _clickhouse_ready
+  until: _clickhouse_ready.rc == 0
+
 - name: Create databases
   ansible.builtin.command:
     cmd: >-
       kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
-      clickhouse-client --password {{ clickhouse_password_result.stdout }}
-      --query "CREATE DATABASE IF NOT EXISTS {{ item.name }}"
+      clickhouse-client --query "CREATE DATABASE IF NOT EXISTS {{ item.name }}"
+  changed_when: false
+  loop: "{{ clickhouse_databases }}"
+
+- name: Create users
+  ansible.builtin.command:
+    cmd: >-
+      kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
+      clickhouse-client --query "CREATE USER IF NOT EXISTS {{ item.name }} IDENTIFIED WITH sha256_hash BY '{{ clickhouse_password_hashes[item.name] }}'"
   changed_when: false
   no_log: true
-  loop: "{{ clickhouse_databases }}"
+  loop: "{{ clickhouse_users }}"
 
 - name: Grant read access to users
   ansible.builtin.command:
     cmd: >-
       kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
-      clickhouse-client --password {{ clickhouse_password_result.stdout }}
-      --query "GRANT SELECT ON {{ item.database }}.* TO {{ item.name }}"
+      clickhouse-client --query "GRANT SELECT ON {{ item.database }}.* TO {{ item.name }}"
   changed_when: false
-  no_log: true
   loop: "{{ clickhouse_users | selectattr('access_level', 'equalto', 'read') | list }}"
 
 - name: Grant write access to users
   ansible.builtin.command:
     cmd: >-
       kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
-      clickhouse-client --password {{ clickhouse_password_result.stdout }}
-      --query "GRANT SELECT, INSERT, ALTER, CREATE TABLE, DROP TABLE ON {{ item.database }}.* TO {{ item.name }}"
+      clickhouse-client --query "GRANT SELECT, INSERT, ALTER, CREATE TABLE, DROP TABLE ON {{ item.database }}.* TO {{ item.name }}"
   changed_when: false
-  no_log: true
   loop: "{{ clickhouse_users | selectattr('access_level', 'equalto', 'write') | list }}"
