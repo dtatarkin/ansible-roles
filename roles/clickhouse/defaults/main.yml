@@ -15,6 +15,10 @@ clickhouse_storage_size: 5Gi
 clickhouse_node_port_tcp: 30000
 clickhouse_node_port_http: 30001
 
+# Databases and users to create after ClickHouse starts
+clickhouse_databases: []
+clickhouse_users: []
+
 # Resource requests (tuned for cx23 instances)
 clickhouse_resources:
   requests:

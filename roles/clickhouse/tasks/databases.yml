@@ -1,0 +1,30 @@
+---
+- name: Create databases
+  ansible.builtin.command:
+    cmd: >-
+      kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
+      clickhouse-client --password {{ clickhouse_password_result.stdout }}
+      --query "CREATE DATABASE IF NOT EXISTS {{ item.name }}"
+  changed_when: false
+  no_log: true
+  loop: "{{ clickhouse_databases }}"
+
+- name: Grant read access to users
+  ansible.builtin.command:
+    cmd: >-
+      kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
+      clickhouse-client --password {{ clickhouse_password_result.stdout }}
+      --query "GRANT SELECT ON {{ item.database }}.* TO {{ item.name }}"
+  changed_when: false
+  no_log: true
+  loop: "{{ clickhouse_users | selectattr('access_level', 'equalto', 'read') | list }}"
+
+- name: Grant write access to users
+  ansible.builtin.command:
+    cmd: >-
+      kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
+      clickhouse-client --password {{ clickhouse_password_result.stdout }}
+      --query "GRANT SELECT, INSERT, ALTER, CREATE TABLE, DROP TABLE ON {{ item.database }}.* TO {{ item.name }}"
+  changed_when: false
+  no_log: true
+  loop: "{{ clickhouse_users | selectattr('access_level', 'equalto', 'write') | list }}"

@@ -24,3 +24,7 @@
 - name: Verify ClickHouse
   ansible.builtin.include_tasks: verify.yml
   when: clickhouse_state == 'present'
+
+- name: Create databases and apply grants
+  ansible.builtin.include_tasks: databases.yml
+  when: clickhouse_state == 'present' and (clickhouse_databases | length > 0 or clickhouse_users | length > 0)
