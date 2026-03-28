@@ -23,6 +23,12 @@
     dest: /var/lib/rancher/k3s/server/manifests/flux-kustomization-apps.yml
     mode: "0600"
 
+- name: Deploy registry credentials for image scanning
+  ansible.builtin.template:
+    src: flux-registry-secret.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/flux-registry-secret.yml
+    mode: "0600"
+
 - name: Deploy webhook receiver secret manifest
   ansible.builtin.template:
     src: flux-receiver-secret.yml.j2
@@ -33,6 +39,12 @@
   ansible.builtin.template:
     src: flux-receiver.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/flux-receiver.yml
+    mode: "0600"
+
+- name: Deploy image webhook receiver manifest
+  ansible.builtin.template:
+    src: flux-image-receiver.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/flux-image-receiver.yml
     mode: "0600"
 
 - name: Deploy webhook receiver ingress manifest
