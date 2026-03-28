@@ -1,0 +1,13 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: metabase
+  namespace: kube-system
+spec:
+  repo: {{ metabase_chart_repo }}
+  chart: metabase
+  version: {{ metabase_chart_version }}
+  targetNamespace: {{ metabase_namespace }}
+  createNamespace: true
+  valuesContent: |-
+    {{ lookup('template', 'metabase-values.yml.j2') | indent(4) }}

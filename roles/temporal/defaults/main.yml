@@ -1,0 +1,30 @@
+---
+# Role state: 'present' to deploy, 'absent' to remove
+temporal_state: present
+# Set to true to delete data when state is absent
+temporal_purge_data: false
+
+temporal_namespace: "temporal"
+
+# Container images
+temporal_server_image: "temporalio/auto-setup:1.29"
+temporal_ui_image: "temporalio/ui:latest"
+
+# Database configuration
+temporal_db_host: "postgres-rw.postgres.svc.cluster.local"
+temporal_db_port: 5432
+temporal_db_user: "temporal"
+temporal_db_name: "temporal"
+temporal_db_visibility_name: "temporal_visibility"
+
+# Ports
+temporal_grpc_port: 7233
+temporal_http_port: 7234
+temporal_ui_port: 8080
+temporal_grpc_node_port: 30000
+
+# Domain for UI access
+temporal_domain: "temporal.{{ infra_domain }}"
+
+# cert-manager ClusterIssuer to use for TLS
+temporal_clusterissuer: letsencrypt-production

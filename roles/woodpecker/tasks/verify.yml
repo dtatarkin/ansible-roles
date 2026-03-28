@@ -1,0 +1,5 @@
+---
+- name: Verify woodpecker-server deployment is ready
+  ansible.builtin.command:
+    cmd: kubectl -n {{ woodpecker_namespace }} rollout status statefulset/woodpecker-server --timeout=120s
+  changed_when: false

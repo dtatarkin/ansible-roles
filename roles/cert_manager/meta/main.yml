@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  role_name: cert_manager
+  description: Deploy cert-manager via K3s HelmChart
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+
+dependencies: []

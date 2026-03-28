@@ -1,0 +1,28 @@
+---
+# Role state: 'present' to deploy, 'absent' to remove
+flux_state: present
+# Set to true to delete data when state is absent
+flux_purge_data: false
+
+flux_namespace: "flux-system"
+
+# Flux Helm chart (community)
+flux_chart_repo: "https://fluxcd-community.github.io/helm-charts"
+flux_chart_name: "flux2"
+flux_chart_version: "2.14.0"
+
+# Git repository for Flux to watch
+flux_git_url: ""
+flux_git_branch: "main"
+flux_git_secret_name: "flux-git-auth"
+
+# Path inside the git repo where Flux app manifests live
+flux_apps_path: "./flux/apps"
+
+# GitHub webhook receiver
+flux_webhook_domain: "flux.{{ infra_domain | default('example.com') }}"
+flux_webhook_clusterissuer: letsencrypt-production
+
+# SOPS age key file on the Ansible controller
+# Default: standard SOPS age key location
+flux_sops_age_key_file: "{{ lookup('env', 'HOME') }}/.config/sops/age/keys.txt"

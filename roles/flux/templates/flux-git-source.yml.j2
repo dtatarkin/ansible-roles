@@ -1,0 +1,12 @@
+apiVersion: source.toolkit.fluxcd.io/v1
+kind: GitRepository
+metadata:
+  name: infra
+  namespace: {{ flux_namespace }}
+spec:
+  interval: 24h
+  url: {{ flux_git_url }}
+  ref:
+    branch: {{ flux_git_branch }}
+  secretRef:
+    name: {{ flux_git_secret_name }}

@@ -1,0 +1,60 @@
+---
+# Role state: 'present' to deploy, 'absent' to remove
+woodpecker_state: present
+# Set to true to delete data when state is absent
+woodpecker_purge_data: false
+
+# Woodpecker Helm chart settings
+woodpecker_chart_version: "3.5.1"
+woodpecker_chart_repo: "https://woodpecker-ci.org/"
+
+woodpecker_namespace: "woodpecker"
+
+# Domain for UI access
+woodpecker_domain: "woodpecker.example.com"
+
+# Database configuration (user/database must exist in CNPG cluster)
+woodpecker_db_name: "woodpecker"
+woodpecker_db_user: "woodpecker"
+# woodpecker_db_password is read from SOPS at deploy time (key: cnpg_woodpecker_password)
+#
+# PostgreSQL sslmode for the database connection:
+#   disable     - no SSL, plaintext only
+#   allow       - try plaintext first, fall back to SSL
+#   prefer      - try SSL first, fall back to plaintext (PostgreSQL default)
+#   require     - SSL required, no certificate verification (recommended for CNPG self-signed certs)
+#   verify-ca   - SSL required, server cert must be signed by a trusted CA
+#   verify-full - SSL required, cert must be trusted CA and hostname must match
+# Note: verify-ca/verify-full require the CNPG CA cert mounted into the woodpecker pod.
+woodpecker_db_sslmode: require
+
+# cert-manager ClusterIssuer to use for TLS
+woodpecker_clusterissuer: letsencrypt-production
+
+# Allow open registration — disable after initial setup
+woodpecker_open_registration: false
+
+# Comma-separated list of GitHub usernames with admin privileges
+woodpecker_admin: "dtatarkin"
+
+# Docker registry hostname for CI image pulls
+woodpecker_docker_registry_host: ""
+
+# Docker agent settings
+woodpecker_agent_image: woodpeckerci/woodpecker-agent
+woodpecker_agent_image_tag: "v3.13.0"
+woodpecker_agent_grpc_port: 30000
+woodpecker_host_cache_dir: /opt/woodpecker
+
+# PostgreSQL host (Kubernetes service DNS)
+woodpecker_db_host: "postgres-rw.postgres.svc.cluster.local"
+woodpecker_db_port: 5432
+
+# Maximum number of pipelines the agent runs concurrently.
+woodpecker_agent_max_procs: 1
+
+# Volumes passed to WOODPECKER_BACKEND_DOCKER_VOLUMES
+woodpecker_agent_backend_volumes:
+  - /var/run/docker.sock:/var/run/docker.sock
+  - "{{ woodpecker_host_cache_dir }}/git-cache:/woodpecker/git-cache"
+  - /root/.docker/config.json:/root/.docker/config.json:ro

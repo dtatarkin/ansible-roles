@@ -1,0 +1,13 @@
+---
+# ubuntu24 role defaults
+
+ubuntu24_updates_cache_valid_time: 3600
+ubuntu24_required_packages:
+  - bash-completion
+  - mc
+  - httping
+  - debfoster
+  - jq
+  - net-tools
+  - iotop-c
+ubuntu24_extra_packages: []

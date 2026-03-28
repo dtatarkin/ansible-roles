@@ -1,0 +1,9 @@
+---
+# Role state: 'present' to deploy, 'absent' to remove
+homepage_state: present
+
+homepage_namespace: "homepage"
+homepage_image: "ghcr.io/gethomepage/homepage:v1.11.0"
+homepage_port: 3000
+homepage_title: "Homepage"
+homepage_allowed_hosts: ""

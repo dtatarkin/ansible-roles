@@ -1,0 +1,37 @@
+---
+
+- name: Deploy CNPG cluster namespace manifest
+  ansible.builtin.template:
+    src: cnpg-cluster-namespace.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/cnpg-cluster-namespace.yml
+    mode: "0600"
+
+
+- name: Deploy CNPG HelmChart manifest
+  ansible.builtin.template:
+    src: cnpg-helmchart.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/cnpg-helmchart.yml
+    mode: "0600"
+
+- name: Deploy CNPG superuser secret manifest
+  ansible.builtin.template:
+    src: cnpg-superuser-secret.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/cnpg-superuser-secret.yml
+    mode: "0600"
+  no_log: true
+
+- name: Deploy CNPG app secret manifest
+  ansible.builtin.template:
+    src: cnpg-app-secret.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/cnpg-app-secret.yml
+    mode: "0600"
+  no_log: true
+
+- name: Deploy CNPG user secrets manifest
+  ansible.builtin.template:
+    src: cnpg-user-secret.yml.j2
+    dest: "/var/lib/rancher/k3s/server/manifests/cnpg-user-{{ item.name | replace('_', '-') }}-secret.yml"
+    mode: "0600"
+  loop: "{{ cnpg_users }}"
+  no_log: true
+  when: cnpg_state == 'present' and (cnpg_users | length > 0) and cnpg_passwords[item.name] is defined

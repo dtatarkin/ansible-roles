@@ -1,0 +1,12 @@
+---
+- name: Deploy valkey secret manifest
+  ansible.builtin.template:
+    src: valkey-secret.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/valkey-secret.yml
+    mode: "0600"
+
+- name: Deploy valkey HelmChart manifest
+  ansible.builtin.template:
+    src: valkey-helmchart.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/valkey-helmchart.yml
+    mode: "0600"

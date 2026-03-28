@@ -1,0 +1,61 @@
+---
+- name: Remove flux receiver ingress manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/flux-receiver-ingress.yml
+    state: absent
+
+- name: Remove flux receiver manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/flux-receiver.yml
+    state: absent
+
+- name: Remove flux receiver secret manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/flux-receiver-secret.yml
+    state: absent
+
+- name: Remove flux Kustomization manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/flux-kustomization-apps.yml
+    state: absent
+
+- name: Remove flux GitRepository manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/flux-git-source.yml
+    state: absent
+
+- name: Remove flux git auth secret manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/flux-git-auth-secret.yml
+    state: absent
+
+- name: Remove flux SOPS age key secret manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/flux-sops-age-secret.yml
+    state: absent
+
+- name: Remove flux HelmChart manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/flux-helmchart.yml
+    state: absent
+
+- name: Delete flux HelmChart CRD to trigger Helm uninstall
+  ansible.builtin.command:
+    cmd: kubectl -n kube-system delete helmchart flux --ignore-not-found
+  register: flux_helmchart_delete
+  changed_when: "'deleted' in flux_helmchart_delete.stdout"
+
+- name: Wait for K3s to uninstall flux Helm release
+  ansible.builtin.command:
+    cmd: kubectl -n {{ flux_namespace }} get deployment flux-source-controller
+  register: flux_check
+  changed_when: false
+  failed_when: false
+  retries: 20
+  delay: 15
+  until: flux_check.rc != 0
+
+- name: Remove flux namespace manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/flux-namespace.yml
+    state: absent

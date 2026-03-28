@@ -1,0 +1,25 @@
+---
+- name: Remove Homepage service manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/homepage-service.yml
+    state: absent
+
+- name: Remove Homepage deployment manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/homepage-deployment.yml
+    state: absent
+
+- name: Remove Homepage ConfigMap manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/homepage-configmap.yml
+    state: absent
+
+- name: Remove Homepage ServiceAccount and RBAC manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/homepage-serviceaccount.yml
+    state: absent
+
+- name: Remove Homepage namespace manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/homepage-namespace.yml
+    state: absent

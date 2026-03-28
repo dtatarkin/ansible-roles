@@ -1,0 +1,38 @@
+---
+- name: Remove CloudNativePG
+  ansible.builtin.include_tasks: remove.yml
+  when: cnpg_state == 'absent'
+
+- name: Read CNPG passwords from SOPS
+  ansible.builtin.include_tasks: secret.yml
+  when: cnpg_state == 'present'
+
+- name: Deploy CloudNativePG operator
+  ansible.builtin.include_tasks: deploy.yml
+  when: cnpg_state == 'present'
+
+- name: Wait for Helm install job to complete
+  ansible.builtin.command:
+    cmd: kubectl -n kube-system wait --for=condition=complete job/helm-install-cnpg --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 15
+  register: cnpg_helm_job
+  until: cnpg_helm_job.rc == 0
+  when: cnpg_state == 'present'
+
+- name: Verify CloudNativePG operator
+  ansible.builtin.include_tasks: verify_operator.yml
+  when: cnpg_state == 'present'
+
+- name: Deploy PostgreSQL Cluster
+  ansible.builtin.include_tasks: cluster.yml
+  when: cnpg_state == 'present'
+
+- name: Verify PostgreSQL Cluster
+  ansible.builtin.include_tasks: verify_cluster.yml
+  when: cnpg_state == 'present'
+
+- name: Apply database grants
+  ansible.builtin.include_tasks: grants.yml
+  when: cnpg_state == 'present' and (cnpg_users | length > 0)

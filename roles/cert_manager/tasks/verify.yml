@@ -1,0 +1,37 @@
+---
+- name: Wait for cert-manager deployment
+  ansible.builtin.command:
+    cmd: kubectl -n {{ cert_manager_namespace }} rollout status deployment/cert-manager --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 10
+  register: cert_manager_rollout
+  until: cert_manager_rollout.rc == 0
+
+- name: Wait for cert-manager-webhook deployment
+  ansible.builtin.command:
+    cmd: kubectl -n {{ cert_manager_namespace }} rollout status deployment/cert-manager-webhook --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 10
+  register: cert_manager_webhook_rollout
+  until: cert_manager_webhook_rollout.rc == 0
+
+- name: Wait for cert-manager-cainjector deployment
+  ansible.builtin.command:
+    cmd: kubectl -n {{ cert_manager_namespace }} rollout status deployment/cert-manager-cainjector --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 10
+  register: cert_manager_cainjector_rollout
+  until: cert_manager_cainjector_rollout.rc == 0
+
+- name: Show cert-manager pods
+  ansible.builtin.command:
+    cmd: kubectl -n {{ cert_manager_namespace }} get pods -o wide
+  changed_when: false
+  register: cert_manager_pods
+
+- name: Print cert-manager pod status
+  ansible.builtin.debug:
+    var: cert_manager_pods.stdout_lines

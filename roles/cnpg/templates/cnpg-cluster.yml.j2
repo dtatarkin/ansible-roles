@@ -1,0 +1,69 @@
+apiVersion: postgresql.cnpg.io/v1
+kind: Cluster
+metadata:
+  name: {{ cnpg_cluster_name }}
+  namespace: {{ cnpg_namespace }}
+spec:
+  instances: {{ cnpg_instances }}
+  imageName: {{ cnpg_pg_image }}
+  enableSuperuserAccess: true
+  superuserSecret:
+    name: cnpg-superuser
+  bootstrap:
+    initdb:
+      database: {{ cnpg_bootstrap_database | default('app') }}
+      owner: {{ cnpg_bootstrap_owner | default('app') }}
+      secret:
+        name: cnpg-app
+      postInitApplicationSQL:
+{% for user in cnpg_users %}
+{% for db in user.databases | default([]) if db.name | default(cnpg_bootstrap_database) == cnpg_bootstrap_database %}
+{% if db.access_level == 'read' %}
+        - "GRANT CONNECT ON DATABASE {{ db.name | default(cnpg_bootstrap_database) }} TO {{ user.name }};"
+        - "GRANT USAGE ON SCHEMA public TO {{ user.name }};"
+        - "GRANT SELECT ON ALL TABLES IN SCHEMA public TO {{ user.name }};"
+        - "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO {{ user.name }};"
+{% elif db.access_level == 'write' %}
+        - "GRANT CONNECT ON DATABASE {{ db.name | default(cnpg_bootstrap_database) }} TO {{ user.name }};"
+        - "GRANT USAGE ON SCHEMA public TO {{ user.name }};"
+        - "GRANT SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA public TO {{ user.name }};"
+        - "GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA public TO {{ user.name }};"
+        - "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO {{ user.name }};"
+        - "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT USAGE, SELECT ON SEQUENCES TO {{ user.name }};"
+{% elif db.access_level == 'admin' %}
+        - "GRANT CONNECT ON DATABASE {{ db.name | default(cnpg_bootstrap_database) }} TO {{ user.name }};"
+        - "GRANT ALL ON SCHEMA public TO {{ user.name }};"
+        - "GRANT ALL ON ALL TABLES IN SCHEMA public TO {{ user.name }};"
+        - "GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO {{ user.name }};"
+        - "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON TABLES TO {{ user.name }};"
+        - "ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT ALL ON SEQUENCES TO {{ user.name }};"
+{% endif %}
+{% endfor %}
+{% endfor %}
+  storage:
+    storageClass: {{ cnpg_storage_class }}
+    size: {{ cnpg_storage_size }}
+  managed:
+    roles:
+{% for user in cnpg_users %}
+      - name: {{ user.name }}
+        ensure: present
+        login: true
+        superuser: false
+        createdb: false
+        passwordSecret:
+          name: cnpg-user-{{ user.name | replace('_', '-') }}
+{% endfor %}
+    services:
+      additional:
+        - selectorType: rw
+          serviceTemplate:
+            metadata:
+              name: {{ cnpg_cluster_name }}-nodeport
+            spec:
+              type: NodePort
+              ports:
+                - name: postgresql
+                  port: 5432
+                  targetPort: 5432
+                  nodePort: {{ cnpg_node_port }}

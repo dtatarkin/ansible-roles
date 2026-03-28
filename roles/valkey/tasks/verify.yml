@@ -1,0 +1,29 @@
+---
+- name: Wait for Valkey Deployment rollout
+  ansible.builtin.command:
+    cmd: kubectl -n {{ valkey_namespace }} rollout status deployment/valkey --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 15
+  register: valkey_rollout
+  until: valkey_rollout.rc == 0
+
+- name: Show Valkey pods
+  ansible.builtin.command:
+    cmd: kubectl -n {{ valkey_namespace }} get pods -l app.kubernetes.io/name=valkey -o wide
+  changed_when: false
+  register: valkey_pods
+
+- name: Print Valkey pod status
+  ansible.builtin.debug:
+    var: valkey_pods.stdout_lines
+
+- name: Show Valkey service
+  ansible.builtin.command:
+    cmd: kubectl -n {{ valkey_namespace }} get svc valkey
+  changed_when: false
+  register: valkey_svc
+
+- name: Print Valkey service
+  ansible.builtin.debug:
+    var: valkey_svc.stdout_lines

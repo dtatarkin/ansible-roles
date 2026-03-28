@@ -1,0 +1,30 @@
+---
+- name: Remove ClickHouse
+  ansible.builtin.include_tasks: remove.yml
+  when: clickhouse_state == 'absent'
+
+- name: Read clickhouse password from SOPS
+  ansible.builtin.include_tasks: secret.yml
+  when: clickhouse_state == 'present'
+
+- name: Deploy ClickHouse
+  ansible.builtin.include_tasks: deploy.yml
+  when: clickhouse_state == 'present'
+
+- name: Wait for Helm install job to complete
+  ansible.builtin.command:
+    cmd: kubectl -n kube-system wait --for=condition=complete job/helm-install-clickhouse --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 15
+  register: clickhouse_helm_job
+  until: clickhouse_helm_job.rc == 0
+  when: clickhouse_state == 'present'
+
+- name: Verify ClickHouse
+  ansible.builtin.include_tasks: verify.yml
+  when: clickhouse_state == 'present'
+
+- name: Create databases and apply grants
+  ansible.builtin.include_tasks: databases.yml
+  when: clickhouse_state == 'present' and (clickhouse_databases | length > 0 or clickhouse_users | length > 0)

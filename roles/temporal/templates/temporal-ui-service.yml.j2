@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: temporal-ui
+  namespace: {{ temporal_namespace }}
+  labels:
+    app.kubernetes.io/name: temporal
+    app.kubernetes.io/component: ui
+spec:
+  type: ClusterIP
+  selector:
+    app.kubernetes.io/name: temporal
+    app.kubernetes.io/component: ui
+  ports:
+    - name: http
+      port: {{ temporal_ui_port }}
+      targetPort: http
+      protocol: TCP

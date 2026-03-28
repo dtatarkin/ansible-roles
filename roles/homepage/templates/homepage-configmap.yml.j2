@@ -1,0 +1,39 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: homepage
+  namespace: {{ homepage_namespace }}
+  labels:
+    app.kubernetes.io/name: homepage
+data:
+  settings.yaml: |
+    title: {{ homepage_title }}
+    theme: dark
+    color: slate
+    headerStyle: clean
+    layout:
+      Infrastructure:
+        style: row
+        columns: 3
+  services.yaml: |
+    []
+  bookmarks.yaml: |
+    []
+  widgets.yaml: |
+    - kubernetes:
+        cluster:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+          label: "cluster"
+        nodes:
+          show: true
+          cpu: true
+          memory: true
+          showLabel: true
+  docker.yaml: |
+    []
+  kubernetes.yaml: |
+    mode: cluster
+    ingress: true

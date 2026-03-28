@@ -1,0 +1,41 @@
+fullnameOverride: valkey
+
+auth:
+  enabled: true
+  usersExistingSecret: valkey-credentials
+  aclUsers:
+    default:
+      permissions: "~* &* +@all"
+
+dataStorage:
+  enabled: true
+  requestedSize: {{ valkey_storage_size }}
+  className: {{ valkey_storage_class }}
+  keepPvc: true
+
+deploymentStrategy: Recreate
+
+service:
+  type: NodePort
+  port: 6379
+  nodePort: {{ valkey_node_port }}
+
+valkeyConfig: |
+  maxmemory {{ valkey_maxmemory }}
+  maxmemory-policy allkeys-lru
+  save 3600 1
+  save 300 100
+  save 60 10000
+  appendonly yes
+  appendfsync everysec
+  aof-use-rdb-preamble yes
+
+resources:
+  requests:
+    cpu: "{{ valkey_resources.requests.cpu }}"
+    memory: "{{ valkey_resources.requests.memory }}"
+{% if valkey_resources.limits is defined %}
+  limits:
+    cpu: "{{ valkey_resources.limits.cpu }}"
+    memory: "{{ valkey_resources.limits.memory }}"
+{% endif %}

@@ -1,0 +1,35 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: temporal-ui
+  namespace: {{ temporal_namespace }}
+  labels:
+    app.kubernetes.io/name: temporal
+    app.kubernetes.io/component: ui
+  annotations:
+    cert-manager.io/cluster-issuer: "{{ temporal_clusterissuer }}"
+    traefik.ingress.kubernetes.io/router.middlewares: oauth2-proxy-forward-auth@kubernetescrd
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Temporal"
+    gethomepage.dev/description: "Workflow orchestration"
+    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/icon: "si-temporal"
+    gethomepage.dev/siteMonitor: "http://temporal-ui.{{ temporal_namespace }}.svc.cluster.local:{{ temporal_ui_port }}"
+    gethomepage.dev/pod-selector: "app.kubernetes.io/name=temporal,app.kubernetes.io/component=ui"
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: temporal-ui-tls
+      hosts:
+        - "{{ temporal_domain }}"
+  rules:
+    - host: "{{ temporal_domain }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: temporal-ui
+                port:
+                  number: {{ temporal_ui_port }}

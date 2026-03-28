@@ -1,0 +1,56 @@
+database:
+  type: postgres
+  host: {{ metabase_db_host }}
+  port: {{ metabase_db_port }}
+  dbname: {{ metabase_db_name }}
+  username: {{ metabase_db_user }}
+  existingSecret: metabase-credentials
+  existingSecretPasswordKey: MB_DB_PASS
+  existingSecretEncryptionKeyKey: MB_ENCRYPTION_SECRET_KEY
+
+service:
+  type: NodePort
+  externalPort: 80
+  internalPort: 3000
+  nodePort: {{ metabase_node_port }}
+
+ingress:
+  enabled: true
+  className: traefik
+  annotations:
+    cert-manager.io/cluster-issuer: "{{ metabase_clusterissuer }}"
+    gethomepage.dev/enabled: "true"
+    gethomepage.dev/name: "Metabase"
+    gethomepage.dev/description: "Business intelligence & analytics"
+    gethomepage.dev/group: "Infrastructure"
+    gethomepage.dev/icon: "metabase"
+    gethomepage.dev/siteMonitor: "http://metabase.{{ metabase_namespace }}.svc.cluster.local"
+    gethomepage.dev/pod-selector: "app=metabase"
+  hosts:
+    - "{{ metabase_domain }}"
+  path: /
+  pathType: Prefix
+  tls:
+    - secretName: metabase-tls
+      hosts:
+        - "{{ metabase_domain }}"
+
+startupProbe:
+  path: /api/health
+  timeoutSeconds: 5
+  failureThreshold: 240
+  periodSeconds: 5
+
+resources:
+  requests:
+    cpu: "{{ metabase_resources.requests.cpu }}"
+    memory: "{{ metabase_resources.requests.memory }}"
+{% if metabase_resources.limits is defined %}
+  limits:
+{% if metabase_resources.limits.cpu is defined %}
+    cpu: "{{ metabase_resources.limits.cpu }}"
+{% endif %}
+{% if metabase_resources.limits.memory is defined %}
+    memory: "{{ metabase_resources.limits.memory }}"
+{% endif %}
+{% endif %}

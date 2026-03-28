@@ -1,0 +1,28 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: docker-registry-ui
+  namespace: kube-system
+spec:
+  repo: {{ docker_registry_chart_repo }}
+  chart: docker-registry-ui
+  version: {{ docker_registry_chart_version }}
+  targetNamespace: {{ docker_registry_namespace }}
+  createNamespace: true
+  valuesContent: |-
+    {{ lookup('template', 'docker-registry-values.yml.j2') | indent(4) }}
+{% if docker_registry_storage_backend == 'filesystem' %}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: registry-data-pvc
+  namespace: {{ docker_registry_namespace }}
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: {{ docker_registry_storage_class }}
+  resources:
+    requests:
+      storage: {{ docker_registry_storage_size }}
+{% endif %}

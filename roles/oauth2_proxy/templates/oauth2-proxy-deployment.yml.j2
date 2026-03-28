@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: oauth2-proxy
+  namespace: {{ oauth2_proxy_namespace }}
+  labels:
+    app.kubernetes.io/name: oauth2-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: oauth2-proxy
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: oauth2-proxy
+    spec:
+      containers:
+        - name: oauth2-proxy
+          image: {{ oauth2_proxy_image }}
+          ports:
+            - name: http
+              containerPort: {{ oauth2_proxy_port }}
+              protocol: TCP
+          args:
+            - --http-address=0.0.0.0:{{ oauth2_proxy_port }}
+            - --provider={{ oauth2_proxy_provider }}
+            - --upstream=http://homepage.homepage.svc.cluster.local:3000/
+            - --reverse-proxy=true
+            - --set-xauthrequest=true
+            - --cookie-secure=true
+            - --cookie-domain={{ oauth2_proxy_cookie_domain }}
+            - --whitelist-domain={{ oauth2_proxy_whitelist_domain }}
+            - --email-domain={{ oauth2_proxy_email_domains }}
+            - --redirect-url={{ oauth2_proxy_redirect_url }}
+{% if oauth2_proxy_allowed_emails | length > 0 %}
+            - --authenticated-emails-file=/etc/oauth2-proxy/emails.txt
+{% endif %}
+          env:
+            - name: OAUTH2_PROXY_CLIENT_ID
+              valueFrom:
+                secretKeyRef:
+                  name: oauth2-proxy
+                  key: client-id
+            - name: OAUTH2_PROXY_CLIENT_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: oauth2-proxy
+                  key: client-secret
+            - name: OAUTH2_PROXY_COOKIE_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: oauth2-proxy
+                  key: cookie-secret
+          readinessProbe:
+            httpGet:
+              path: /ping
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            httpGet:
+              path: /ping
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 15
+{% if oauth2_proxy_allowed_emails | length > 0 %}
+          volumeMounts:
+            - name: emails
+              mountPath: /etc/oauth2-proxy
+              readOnly: true
+      volumes:
+        - name: emails
+          configMap:
+            name: oauth2-proxy-emails
+{% endif %}

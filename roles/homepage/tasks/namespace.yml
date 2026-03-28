@@ -1,0 +1,6 @@
+---
+- name: Deploy Homepage namespace manifest
+  ansible.builtin.template:
+    src: homepage-namespace.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/homepage-namespace.yml
+    mode: "0600"

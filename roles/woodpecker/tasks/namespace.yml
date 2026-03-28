@@ -1,0 +1,6 @@
+---
+- name: Deploy woodpecker namespace manifest
+  ansible.builtin.template:
+    src: woodpecker-namespace.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/woodpecker-namespace.yml
+    mode: "0600"

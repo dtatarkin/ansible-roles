@@ -1,0 +1,24 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: flux-receiver
+  namespace: {{ flux_namespace }}
+  annotations:
+    cert-manager.io/cluster-issuer: {{ flux_webhook_clusterissuer }}
+spec:
+  ingressClassName: traefik
+  tls:
+    - hosts:
+        - {{ flux_webhook_domain }}
+      secretName: flux-receiver-tls
+  rules:
+    - host: {{ flux_webhook_domain }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: notification-controller
+                port:
+                  number: 80

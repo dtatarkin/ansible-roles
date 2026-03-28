@@ -1,0 +1,26 @@
+---
+- name: Create host cache directories
+  ansible.builtin.file:
+    path: "{{ item }}"
+    state: directory
+    mode: "0755"
+  loop:
+    - "{{ woodpecker_host_cache_dir }}/git-cache"
+
+- name: Deploy woodpecker gRPC NodePort service manifest
+  ansible.builtin.template:
+    src: woodpecker-grpc-nodeport.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/woodpecker-grpc-nodeport.yml
+    mode: "0600"
+
+- name: Deploy woodpecker docker-config secret manifest
+  ansible.builtin.template:
+    src: woodpecker-docker-config-secret.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/woodpecker-docker-config-secret.yml
+    mode: "0600"
+
+- name: Deploy woodpecker HelmChart manifest
+  ansible.builtin.template:
+    src: woodpecker-helmchart.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/woodpecker-helmchart.yml
+    mode: "0600"

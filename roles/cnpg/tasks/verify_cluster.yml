@@ -1,0 +1,39 @@
+---
+- name: Wait for PostgreSQL Cluster to become healthy
+  ansible.builtin.command:
+    cmd: kubectl -n {{ cnpg_namespace }} get cluster {{ cnpg_cluster_name }} -o jsonpath='{.status.phase}'
+  changed_when: false
+  register: cnpg_cluster_phase
+  retries: 120
+  delay: 5
+  until: cnpg_cluster_phase.stdout == 'Cluster in healthy state'
+
+- name: Show PostgreSQL Cluster status
+  ansible.builtin.command:
+    cmd: kubectl -n {{ cnpg_namespace }} get cluster {{ cnpg_cluster_name }}
+  changed_when: false
+  register: cnpg_cluster_status
+
+- name: Print PostgreSQL Cluster status
+  ansible.builtin.debug:
+    var: cnpg_cluster_status.stdout_lines
+
+- name: Show PostgreSQL pods
+  ansible.builtin.command:
+    cmd: kubectl -n {{ cnpg_namespace }} get pods -o wide
+  changed_when: false
+  register: cnpg_pods
+
+- name: Print PostgreSQL pod status
+  ansible.builtin.debug:
+    var: cnpg_pods.stdout_lines
+
+- name: Show PostgreSQL services
+  ansible.builtin.command:
+    cmd: kubectl -n {{ cnpg_namespace }} get svc
+  changed_when: false
+  register: cnpg_svcs
+
+- name: Print PostgreSQL services
+  ansible.builtin.debug:
+    var: cnpg_svcs.stdout_lines

@@ -1,0 +1,15 @@
+---
+# Role state: 'present' to deploy, 'absent' to remove
+oauth2_proxy_state: present
+
+oauth2_proxy_namespace: "oauth2-proxy"
+oauth2_proxy_image: "quay.io/oauth2-proxy/oauth2-proxy:v7.14.3"
+oauth2_proxy_domain: "auth.{{ infra_domain }}"
+oauth2_proxy_clusterissuer: letsencrypt-production
+oauth2_proxy_port: 4180
+oauth2_proxy_provider: google
+oauth2_proxy_email_domains: "*"
+oauth2_proxy_allowed_emails: []
+oauth2_proxy_cookie_domain: ""
+oauth2_proxy_whitelist_domain: ""
+oauth2_proxy_redirect_url: "https://{{ oauth2_proxy_domain }}/oauth2/callback"

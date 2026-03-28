@@ -1,0 +1,35 @@
+---
+- name: Remove OAuth2 Proxy middleware manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-middleware.yml
+    state: absent
+
+- name: Remove OAuth2 Proxy ingress manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-ingress.yml
+    state: absent
+
+- name: Remove OAuth2 Proxy service manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-service.yml
+    state: absent
+
+- name: Remove OAuth2 Proxy deployment manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-deployment.yml
+    state: absent
+
+- name: Remove OAuth2 Proxy emails ConfigMap manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-emails-configmap.yml
+    state: absent
+
+- name: Remove OAuth2 Proxy secret manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-secret.yml
+    state: absent
+
+- name: Remove OAuth2 Proxy namespace manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-namespace.yml
+    state: absent

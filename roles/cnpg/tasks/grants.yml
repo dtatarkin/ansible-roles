@@ -1,0 +1,68 @@
+---
+- name: Build flat list of non-bootstrap grants
+  ansible.builtin.set_fact:
+    _cnpg_grants: >-
+      {{
+        cnpg_users
+        | subelements('databases', skip_missing=True)
+        | rejectattr('1.name', 'eq', cnpg_bootstrap_database)
+        | list
+      }}
+
+- name: Get CNPG primary pod name
+  ansible.builtin.command:
+    cmd: >-
+      kubectl -n {{ cnpg_namespace }} get pods
+      -l cnpg.io/cluster={{ cnpg_cluster_name }},role=primary
+      -o jsonpath='{.items[0].metadata.name}'
+  changed_when: false
+  register: cnpg_primary_pod
+  when: _cnpg_grants | length > 0
+
+- name: Build grant SQL per access level
+  ansible.builtin.set_fact:
+    _cnpg_grant_sql:
+      read: |-
+        GRANT CONNECT ON DATABASE {db} TO {user};
+        GRANT USAGE ON SCHEMA public TO {user};
+        GRANT SELECT ON ALL TABLES IN SCHEMA public TO {user};
+        ALTER DEFAULT PRIVILEGES IN SCHEMA public
+          GRANT SELECT ON TABLES TO {user};
+      write: |-
+        GRANT CONNECT ON DATABASE {db} TO {user};
+        GRANT USAGE ON SCHEMA public TO {user};
+        GRANT SELECT, INSERT, UPDATE, DELETE
+          ON ALL TABLES IN SCHEMA public TO {user};
+        GRANT USAGE, SELECT
+          ON ALL SEQUENCES IN SCHEMA public TO {user};
+        ALTER DEFAULT PRIVILEGES IN SCHEMA public
+          GRANT SELECT, INSERT, UPDATE, DELETE
+          ON TABLES TO {user};
+        ALTER DEFAULT PRIVILEGES IN SCHEMA public
+          GRANT USAGE, SELECT ON SEQUENCES TO {user};
+      admin: |-
+        GRANT CONNECT ON DATABASE {db} TO {user};
+        GRANT ALL ON SCHEMA public TO {user};
+        GRANT ALL ON ALL TABLES IN SCHEMA public TO {user};
+        GRANT ALL ON ALL SEQUENCES IN SCHEMA public TO {user};
+        ALTER DEFAULT PRIVILEGES IN SCHEMA public
+          GRANT ALL ON TABLES TO {user};
+        ALTER DEFAULT PRIVILEGES IN SCHEMA public
+          GRANT ALL ON SEQUENCES TO {user};
+
+- name: Apply grants for non-bootstrap databases
+  ansible.builtin.command:
+    cmd: >-
+      kubectl -n {{ cnpg_namespace }}
+      exec {{ cnpg_primary_pod.stdout }} --
+      psql -U postgres -d {{ item.1.name }}
+      -c "{{ _cnpg_grant_sql[item.1.access_level]
+      | replace('{db}', item.1.name)
+      | replace('{user}', item.0.name) }}"
+  loop: "{{ _cnpg_grants }}"
+  loop_control:
+    label: >-
+      {{ item.0.name }} -> {{ item.1.name }}
+      ({{ item.1.access_level }})
+  changed_when: false
+  when: _cnpg_grants | length > 0

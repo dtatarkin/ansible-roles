@@ -1,0 +1,52 @@
+---
+- name: Remove docker-registry HelmChart manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/docker-registry-helmchart.yml
+    state: absent
+
+- name: Remove docker-registry secret manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/docker-registry-secret.yml
+    state: absent
+
+- name: Remove docker-registry NodePort manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/docker-registry-nodeport.yml
+    state: absent
+
+- name: Delete docker-registry-ui HelmChart CRD to trigger Helm uninstall
+  ansible.builtin.command:
+    cmd: kubectl -n kube-system delete helmchart docker-registry-ui --ignore-not-found
+  changed_when: false
+
+- name: Wait for K3s to uninstall docker-registry Helm release
+  ansible.builtin.command:
+    cmd: kubectl -n {{ docker_registry_namespace }} get deployment -l app.kubernetes.io/name=docker-registry-ui -o name
+  register: docker_registry_check
+  changed_when: false
+  failed_when: false
+  retries: 20
+  delay: 15
+  until: docker_registry_check.stdout == ""
+
+- name: Delete docker-registry htpasswd secret from cluster
+  ansible.builtin.command:
+    cmd: kubectl -n {{ docker_registry_namespace }} delete secret registry-htpasswd --ignore-not-found
+  changed_when: false
+
+- name: Delete docker-registry NodePort service from cluster
+  ansible.builtin.command:
+    cmd: kubectl -n {{ docker_registry_namespace }} delete service docker-registry-nodeport --ignore-not-found
+  changed_when: false
+
+- name: Delete docker-registry PVC
+  ansible.builtin.command:
+    cmd: kubectl -n {{ docker_registry_namespace }} delete pvc registry-data-pvc --ignore-not-found
+  changed_when: false
+  when: docker_registry_purge_data | bool
+
+- name: Delete docker-registry namespace
+  ansible.builtin.command:
+    cmd: kubectl delete namespace {{ docker_registry_namespace }} --ignore-not-found
+  changed_when: false
+  when: docker_registry_purge_data | bool

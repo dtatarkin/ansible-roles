@@ -1,0 +1,9 @@
+---
+- name: Wait for docker-registry pods to be ready
+  ansible.builtin.command:
+    cmd: kubectl -n {{ docker_registry_namespace }} wait --for=condition=ready pod -l app.kubernetes.io/name=docker-registry-ui --timeout=300s
+  changed_when: false
+  retries: 5
+  delay: 15
+  register: docker_registry_pods
+  until: docker_registry_pods.rc == 0

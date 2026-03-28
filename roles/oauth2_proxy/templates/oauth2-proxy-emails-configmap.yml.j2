@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: oauth2-proxy-emails
+  namespace: {{ oauth2_proxy_namespace }}
+data:
+  emails.txt: |
+{% for email in oauth2_proxy_allowed_emails %}
+    {{ email }}
+{% endfor %}

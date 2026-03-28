@@ -1,0 +1,16 @@
+---
+- name: Remove nebula
+  ansible.builtin.include_tasks: remove.yml
+  when: nebula_state == 'absent'
+
+- name: Install nebula
+  ansible.builtin.include_tasks: install.yml
+  when: nebula_state == 'present'
+
+- name: Configure nebula
+  ansible.builtin.include_tasks: configure.yml
+  when: nebula_state == 'present'
+
+- name: Manage nebula service
+  ansible.builtin.include_tasks: service.yml
+  when: nebula_state == 'present'

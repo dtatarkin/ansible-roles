@@ -1,0 +1,15 @@
+---
+- name: Verify flux source-controller is ready
+  ansible.builtin.command:
+    cmd: kubectl -n {{ flux_namespace }} rollout status deployment/flux-source-controller --timeout=120s
+  changed_when: false
+
+- name: Verify flux kustomize-controller is ready
+  ansible.builtin.command:
+    cmd: kubectl -n {{ flux_namespace }} rollout status deployment/flux-kustomize-controller --timeout=120s
+  changed_when: false
+
+- name: Verify flux helm-controller is ready
+  ansible.builtin.command:
+    cmd: kubectl -n {{ flux_namespace }} rollout status deployment/flux-helm-controller --timeout=120s
+  changed_when: false

@@ -1,0 +1,76 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: temporal-server
+  namespace: {{ temporal_namespace }}
+  labels:
+    app.kubernetes.io/name: temporal
+    app.kubernetes.io/component: server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: temporal
+      app.kubernetes.io/component: server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: temporal
+        app.kubernetes.io/component: server
+    spec:
+      containers:
+        - name: temporal-server
+          image: {{ temporal_server_image }}
+          ports:
+            - name: grpc
+              containerPort: {{ temporal_grpc_port }}
+              protocol: TCP
+            - name: http
+              containerPort: {{ temporal_http_port }}
+              protocol: TCP
+          env:
+            - name: SKIP_DB_CREATE
+              value: "true"
+            - name: DB
+              value: "postgres12"
+            - name: POSTGRES_SEEDS
+              value: "{{ temporal_db_host }}"
+            - name: DB_PORT
+              value: "{{ temporal_db_port }}"
+            - name: DBNAME
+              value: "{{ temporal_db_name }}"
+            - name: VISIBILITY_DBNAME
+              value: "{{ temporal_db_visibility_name }}"
+            - name: POSTGRES_USER
+              value: "{{ temporal_db_user }}"
+            - name: POSTGRES_PWD
+              valueFrom:
+                secretKeyRef:
+                  name: temporal-db
+                  key: POSTGRES_PWD
+            - name: TEMPORAL_ADDRESS
+              value: "0.0.0.0:{{ temporal_grpc_port }}"
+            - name: TEMPORAL_CLI_ADDRESS
+              value: "localhost:{{ temporal_grpc_port }}"
+            - name: BIND_ON_IP
+              value: "0.0.0.0"
+            - name: POSTGRES_TLS_ENABLED
+              value: "false"
+            - name: SQL_TLS
+              value: "false"
+            - name: SQL_TLS_ENABLED
+              value: "false"
+            - name: POSTGRES_TLS_DISABLE_HOST_VERIFICATION
+              value: "true"
+            - name: SQL_HOST_VERIFICATION
+              value: "false"
+          readinessProbe:
+            tcpSocket:
+              port: grpc
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: grpc
+            initialDelaySeconds: 60
+            periodSeconds: 15

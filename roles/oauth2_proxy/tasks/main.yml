@@ -1,0 +1,20 @@
+---
+- name: Remove OAuth2 Proxy
+  ansible.builtin.include_tasks: remove.yml
+  when: oauth2_proxy_state == 'absent'
+
+- name: Read OAuth2 Proxy secrets from SOPS
+  ansible.builtin.include_tasks: secret.yml
+  when: oauth2_proxy_state == 'present'
+
+- name: Deploy OAuth2 Proxy namespace
+  ansible.builtin.include_tasks: namespace.yml
+  when: oauth2_proxy_state == 'present'
+
+- name: Deploy OAuth2 Proxy
+  ansible.builtin.include_tasks: deploy.yml
+  when: oauth2_proxy_state == 'present'
+
+- name: Verify OAuth2 Proxy deployment
+  ansible.builtin.include_tasks: verify.yml
+  when: oauth2_proxy_state == 'present'

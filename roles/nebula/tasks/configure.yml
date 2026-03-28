@@ -1,0 +1,47 @@
+---
+- name: Create temporary config file
+  ansible.builtin.tempfile:
+    state: file
+    suffix: .nebula-config.yml
+  delegate_to: localhost
+  become: false
+  changed_when: false
+  register: nebula_config_tmpfile
+
+- name: Generate nebula config
+  ansible.builtin.command:
+    cmd: >-
+      uv run nebula-config
+      --pki-base-path {{ playbook_dir }}/../../nebula-config
+      --config {{ playbook_dir }}/../../nebula-config/nebula-network.config.yml
+      config generate
+      --output {{ nebula_config_tmpfile.path }}
+      {{ inventory_hostname }}
+  delegate_to: localhost
+  become: false
+  changed_when: false
+
+- name: Ensure nebula config directory exists
+  ansible.builtin.file:
+    path: "{{ nebula_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Copy generated config to remote host
+  ansible.builtin.copy:
+    src: "{{ nebula_config_tmpfile.path }}"
+    dest: "{{ nebula_config_dir }}/config.yml"
+    owner: root
+    group: root
+    mode: "0600"
+  notify: Restart nebula
+
+- name: Clean up temporary config file
+  ansible.builtin.file:
+    path: "{{ nebula_config_tmpfile.path }}"
+    state: absent
+  delegate_to: localhost
+  become: false
+  changed_when: false

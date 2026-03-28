@@ -1,0 +1,6 @@
+---
+- name: Deploy flux HelmChart manifest
+  ansible.builtin.template:
+    src: flux-helmchart.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/flux-helmchart.yml
+    mode: "0600"

@@ -1,0 +1,11 @@
+---
+galaxy_info:
+  role_name: hcloud_volumes
+  description: Format and mount Hetzner Cloud volumes
+  min_ansible_version: "2.15"
+  platforms:
+    - name: Ubuntu
+      versions:
+        - noble
+
+dependencies: []

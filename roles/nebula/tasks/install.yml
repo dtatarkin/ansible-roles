@@ -1,0 +1,42 @@
+---
+- name: Check if nebula is already installed
+  ansible.builtin.stat:
+    path: "{{ nebula_install_dir }}/nebula"
+  register: nebula_bin
+
+- name: Check installed nebula version
+  ansible.builtin.command:
+    cmd: "{{ nebula_install_dir }}/nebula --version"
+  register: nebula_installed_version
+  changed_when: false
+  failed_when: false
+  when: nebula_bin.stat.exists
+
+- name: Download and install nebula
+  when: >
+    not nebula_bin.stat.exists or
+    nebula_version not in (nebula_installed_version.stdout | default(''))
+  block:
+    - name: Create temporary download directory
+      ansible.builtin.tempfile:
+        state: directory
+        suffix: nebula
+      register: nebula_tmpdir
+
+    - name: Download nebula release
+      ansible.builtin.get_url:
+        url: "https://github.com/slackhq/nebula/releases/download/v{{ nebula_version }}/nebula-{{ nebula_arch }}.tar.gz"
+        dest: "{{ nebula_tmpdir.path }}/nebula.tar.gz"
+        mode: "0644"
+
+    - name: Extract nebula binaries
+      ansible.builtin.unarchive:
+        src: "{{ nebula_tmpdir.path }}/nebula.tar.gz"
+        dest: "{{ nebula_install_dir }}"
+        remote_src: true
+        mode: "0755"
+
+    - name: Clean up temporary directory
+      ansible.builtin.file:
+        path: "{{ nebula_tmpdir.path }}"
+        state: absent

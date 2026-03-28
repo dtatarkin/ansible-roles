@@ -1,0 +1,12 @@
+---
+- name: Deploy metabase secret manifest
+  ansible.builtin.template:
+    src: metabase-secret.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/metabase-secret.yml
+    mode: "0600"
+
+- name: Deploy metabase HelmChart manifest
+  ansible.builtin.template:
+    src: metabase-helmchart.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/metabase-helmchart.yml
+    mode: "0600"

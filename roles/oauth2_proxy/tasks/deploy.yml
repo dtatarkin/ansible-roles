@@ -1,0 +1,43 @@
+---
+- name: Deploy OAuth2 Proxy secret manifest
+  ansible.builtin.template:
+    src: oauth2-proxy-secret.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-secret.yml
+    mode: "0600"
+
+- name: Deploy OAuth2 Proxy emails ConfigMap manifest
+  ansible.builtin.template:
+    src: oauth2-proxy-emails-configmap.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-emails-configmap.yml
+    mode: "0600"
+  when: oauth2_proxy_allowed_emails | length > 0
+
+- name: Remove OAuth2 Proxy emails ConfigMap manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-emails-configmap.yml
+    state: absent
+  when: oauth2_proxy_allowed_emails | length == 0
+
+- name: Deploy OAuth2 Proxy deployment manifest
+  ansible.builtin.template:
+    src: oauth2-proxy-deployment.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-deployment.yml
+    mode: "0600"
+
+- name: Deploy OAuth2 Proxy service manifest
+  ansible.builtin.template:
+    src: oauth2-proxy-service.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-service.yml
+    mode: "0600"
+
+- name: Deploy OAuth2 Proxy ingress manifest
+  ansible.builtin.template:
+    src: oauth2-proxy-ingress.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-ingress.yml
+    mode: "0600"
+
+- name: Deploy OAuth2 Proxy middleware manifest
+  ansible.builtin.template:
+    src: oauth2-proxy-middleware.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-middleware.yml
+    mode: "0600"

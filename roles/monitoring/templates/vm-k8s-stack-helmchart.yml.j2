@@ -1,0 +1,13 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: vm-k8s-stack
+  namespace: kube-system
+spec:
+  repo: {{ monitoring_chart_repo }}
+  chart: victoria-metrics-k8s-stack
+  version: {{ monitoring_chart_version }}
+  targetNamespace: {{ monitoring_namespace }}
+  createNamespace: true
+  valuesContent: |-
+    {{ lookup('template', 'vm-k8s-stack-values.yml.j2') | indent(4) }}

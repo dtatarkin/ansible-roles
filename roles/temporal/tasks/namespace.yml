@@ -1,0 +1,6 @@
+---
+- name: Deploy Temporal namespace manifest
+  ansible.builtin.template:
+    src: temporal-namespace.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/temporal-namespace.yml
+    mode: "0600"

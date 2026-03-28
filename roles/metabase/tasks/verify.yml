@@ -1,0 +1,29 @@
+---
+- name: Wait for Metabase Deployment rollout
+  ansible.builtin.command:
+    cmd: kubectl -n {{ metabase_namespace }} rollout status deployment/metabase --timeout=1200s
+  changed_when: false
+  retries: 1
+  delay: 5
+  register: metabase_rollout
+  until: metabase_rollout.rc == 0
+
+- name: Show Metabase pods
+  ansible.builtin.command:
+    cmd: kubectl -n {{ metabase_namespace }} get pods -l app=metabase -o wide
+  changed_when: false
+  register: metabase_pods
+
+- name: Print Metabase pod status
+  ansible.builtin.debug:
+    var: metabase_pods.stdout_lines
+
+- name: Show Metabase service
+  ansible.builtin.command:
+    cmd: kubectl -n {{ metabase_namespace }} get svc metabase
+  changed_when: false
+  register: metabase_svc
+
+- name: Print Metabase service
+  ansible.builtin.debug:
+    var: metabase_svc.stdout_lines

@@ -1,0 +1,41 @@
+---
+- name: Remove local-path-slow manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/local-path-slow.yml
+    state: absent
+
+- name: Delete local-path-slow StorageClass
+  ansible.builtin.command:
+    cmd: kubectl delete storageclass {{ local_path_slow_storage_class }} --ignore-not-found
+  changed_when: "'deleted' in local_path_slow_sc_delete.stdout"
+  register: local_path_slow_sc_delete
+
+- name: Delete local-path-slow Deployment
+  ansible.builtin.command:
+    cmd: kubectl delete deployment local-path-slow-provisioner -n {{ local_path_slow_namespace }} --ignore-not-found
+  changed_when: "'deleted' in local_path_slow_deploy_delete.stdout"
+  register: local_path_slow_deploy_delete
+
+- name: Delete local-path-slow ConfigMap
+  ansible.builtin.command:
+    cmd: kubectl delete configmap local-path-slow-config -n {{ local_path_slow_namespace }} --ignore-not-found
+  changed_when: "'deleted' in local_path_slow_cm_delete.stdout"
+  register: local_path_slow_cm_delete
+
+- name: Delete local-path-slow ClusterRoleBinding
+  ansible.builtin.command:
+    cmd: kubectl delete clusterrolebinding local-path-slow-bind --ignore-not-found
+  changed_when: "'deleted' in local_path_slow_crb_delete.stdout"
+  register: local_path_slow_crb_delete
+
+- name: Delete local-path-slow ClusterRole
+  ansible.builtin.command:
+    cmd: kubectl delete clusterrole local-path-slow-role --ignore-not-found
+  changed_when: "'deleted' in local_path_slow_cr_delete.stdout"
+  register: local_path_slow_cr_delete
+
+- name: Delete local-path-slow ServiceAccount
+  ansible.builtin.command:
+    cmd: kubectl delete serviceaccount local-path-slow-service-account -n {{ local_path_slow_namespace }} --ignore-not-found
+  changed_when: "'deleted' in local_path_slow_sa_delete.stdout"
+  register: local_path_slow_sa_delete

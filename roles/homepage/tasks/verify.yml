@@ -1,0 +1,9 @@
+---
+- name: Wait for Homepage deployment
+  ansible.builtin.command:
+    cmd: kubectl -n {{ homepage_namespace }} rollout status deployment/homepage --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 15
+  register: homepage_rollout
+  until: homepage_rollout.rc == 0

@@ -1,0 +1,29 @@
+---
+- name: Wait for ClickHouse StatefulSet rollout
+  ansible.builtin.command:
+    cmd: kubectl -n {{ clickhouse_namespace }} rollout status statefulset/clickhouse --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 15
+  register: clickhouse_rollout
+  until: clickhouse_rollout.rc == 0
+
+- name: Show ClickHouse pods
+  ansible.builtin.command:
+    cmd: kubectl -n {{ clickhouse_namespace }} get pods -l app.kubernetes.io/name=clickhouse -o wide
+  changed_when: false
+  register: clickhouse_pods
+
+- name: Print ClickHouse pod status
+  ansible.builtin.debug:
+    var: clickhouse_pods.stdout_lines
+
+- name: Show ClickHouse services
+  ansible.builtin.command:
+    cmd: kubectl -n {{ clickhouse_namespace }} get svc -l app.kubernetes.io/name=clickhouse
+  changed_when: false
+  register: clickhouse_svc
+
+- name: Print ClickHouse services
+  ansible.builtin.debug:
+    var: clickhouse_svc.stdout_lines

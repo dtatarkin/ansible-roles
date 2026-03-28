@@ -1,0 +1,16 @@
+[Unit]
+Description=Nebula Overlay Network
+Wants=basic.target network-online.target
+After=basic.target network.target network-online.target
+Before=sshd.service
+
+[Service]
+Type=simple
+ExecReload=/bin/kill -HUP $MAINPID
+ExecStart={{ nebula_install_dir }}/nebula -config {{ nebula_config_dir }}/config.yml
+Restart=always
+RestartSec=5
+SyslogIdentifier=nebula
+
+[Install]
+WantedBy=multi-user.target

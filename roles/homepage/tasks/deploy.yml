@@ -1,0 +1,28 @@
+---
+- name: Deploy Homepage ServiceAccount and RBAC manifest
+  ansible.builtin.template:
+    src: homepage-serviceaccount.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/homepage-serviceaccount.yml
+    mode: "0600"
+
+- name: Deploy Homepage ConfigMap manifest
+  ansible.builtin.template:
+    src: homepage-configmap.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/homepage-configmap.yml
+    mode: "0600"
+
+- name: Compute ConfigMap checksum for pod rollout
+  ansible.builtin.set_fact:
+    homepage_configmap_checksum: "{{ lookup('template', 'homepage-configmap.yml.j2') | hash('sha256') }}"
+
+- name: Deploy Homepage deployment manifest
+  ansible.builtin.template:
+    src: homepage-deployment.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/homepage-deployment.yml
+    mode: "0600"
+
+- name: Deploy Homepage service manifest
+  ansible.builtin.template:
+    src: homepage-service.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/homepage-service.yml
+    mode: "0600"

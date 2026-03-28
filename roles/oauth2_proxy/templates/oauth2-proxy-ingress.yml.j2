@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: oauth2-proxy
+  namespace: {{ oauth2_proxy_namespace }}
+  labels:
+    app.kubernetes.io/name: oauth2-proxy
+  annotations:
+    cert-manager.io/cluster-issuer: "{{ oauth2_proxy_clusterissuer }}"
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: oauth2-proxy-tls
+      hosts:
+        - "{{ oauth2_proxy_domain }}"
+  rules:
+    - host: "{{ oauth2_proxy_domain }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: oauth2-proxy
+                port:
+                  number: {{ oauth2_proxy_port }}

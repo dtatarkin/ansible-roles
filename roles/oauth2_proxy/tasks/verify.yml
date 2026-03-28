@@ -1,0 +1,9 @@
+---
+- name: Wait for OAuth2 Proxy deployment
+  ansible.builtin.command:
+    cmd: kubectl -n {{ oauth2_proxy_namespace }} rollout status deployment/oauth2-proxy --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 15
+  register: oauth2_proxy_rollout
+  until: oauth2_proxy_rollout.rc == 0

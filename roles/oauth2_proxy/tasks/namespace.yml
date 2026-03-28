@@ -1,0 +1,6 @@
+---
+- name: Deploy OAuth2 Proxy namespace manifest
+  ansible.builtin.template:
+    src: oauth2-proxy-namespace.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-namespace.yml
+    mode: "0600"

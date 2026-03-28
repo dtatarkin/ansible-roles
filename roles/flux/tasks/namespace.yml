@@ -1,0 +1,6 @@
+---
+- name: Deploy flux namespace manifest
+  ansible.builtin.template:
+    src: flux-namespace.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/flux-namespace.yml
+    mode: "0600"

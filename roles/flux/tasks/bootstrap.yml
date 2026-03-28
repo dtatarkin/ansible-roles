@@ -1,0 +1,42 @@
+---
+- name: Deploy SOPS age key secret manifest
+  ansible.builtin.template:
+    src: flux-sops-age-secret.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/flux-sops-age-secret.yml
+    mode: "0600"
+
+- name: Deploy git auth secret manifest
+  ansible.builtin.template:
+    src: flux-git-auth-secret.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/flux-git-auth-secret.yml
+    mode: "0600"
+
+- name: Deploy GitRepository source manifest
+  ansible.builtin.template:
+    src: flux-git-source.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/flux-git-source.yml
+    mode: "0600"
+
+- name: Deploy Kustomization for apps manifest
+  ansible.builtin.template:
+    src: flux-kustomization-apps.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/flux-kustomization-apps.yml
+    mode: "0600"
+
+- name: Deploy webhook receiver secret manifest
+  ansible.builtin.template:
+    src: flux-receiver-secret.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/flux-receiver-secret.yml
+    mode: "0600"
+
+- name: Deploy webhook receiver manifest
+  ansible.builtin.template:
+    src: flux-receiver.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/flux-receiver.yml
+    mode: "0600"
+
+- name: Deploy webhook receiver ingress manifest
+  ansible.builtin.template:
+    src: flux-receiver-ingress.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/flux-receiver-ingress.yml
+    mode: "0600"

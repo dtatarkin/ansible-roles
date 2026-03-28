@@ -1,0 +1,13 @@
+apiVersion: helm.cattle.io/v1
+kind: HelmChart
+metadata:
+  name: clickhouse
+  namespace: kube-system
+spec:
+  repo: {{ clickhouse_chart_repo }}
+  chart: clickhouse
+  version: {{ clickhouse_chart_version }}
+  targetNamespace: {{ clickhouse_namespace }}
+  createNamespace: true
+  valuesContent: |-
+    {{ lookup('template', 'clickhouse-values.yml.j2') | indent(4) }}

@@ -1,0 +1,64 @@
+registry:
+  enabled: true
+  image: registry:2.8.2
+{% if docker_registry_storage_backend == 's3' %}
+  extraEnv:
+    - name: REGISTRY_STORAGE
+      value: s3
+    - name: REGISTRY_STORAGE_S3_REGION
+      value: "{{ docker_registry_s3_region }}"
+    - name: REGISTRY_STORAGE_S3_REGIONENDPOINT
+      value: "{{ docker_registry_s3_regionendpoint }}"
+    - name: REGISTRY_STORAGE_S3_BUCKET
+      value: "{{ docker_registry_s3_bucket }}"
+    - name: REGISTRY_STORAGE_S3_ACCESSKEY
+      value: "{{ docker_registry_s3_access_key }}"
+    - name: REGISTRY_STORAGE_S3_SECRETKEY
+      value: "{{ docker_registry_s3_secret_key }}"
+{% else %}
+  dataVolume:
+    persistentVolumeClaim:
+      claimName: registry-data-pvc
+{% endif %}
+  auth:
+    basic:
+      enabled: true
+      secretName: registry-htpasswd
+  ingress:
+    enabled: true
+    host: {{ docker_registry_hostname }}
+    path: /v2/
+    pathType: Prefix
+    ingressClassName: traefik
+    tls:
+      - secretName: registry-tls
+        hosts:
+          - {{ docker_registry_hostname }}
+    annotations:
+      cert-manager.io/cluster-issuer: {{ docker_registry_clusterissuer }}
+
+
+ui:
+  proxy: true
+  registrySecured: true
+  singleRegistry: true
+  deleteImages: true
+  ingress:
+    enabled: true
+    host: {{ docker_registry_hostname }}
+    path: /
+    pathType: Prefix
+    ingressClassName: traefik
+    tls:
+      - secretName: registry-ui-tls
+        hosts:
+          - {{ docker_registry_hostname }}
+    annotations:
+      cert-manager.io/cluster-issuer: {{ docker_registry_clusterissuer }}
+      gethomepage.dev/enabled: "true"
+      gethomepage.dev/name: "Docker Registry"
+      gethomepage.dev/description: "Container image registry"
+      gethomepage.dev/group: "Infrastructure"
+      gethomepage.dev/icon: "docker"
+      gethomepage.dev/siteMonitor: "http://docker-registry-ui-docker-registry-ui-user-interface.{{ docker_registry_namespace }}.svc.cluster.local:80"
+      gethomepage.dev/pod-selector: "app.kubernetes.io/name=docker-registry-ui,app.kubernetes.io/component=user-interface"

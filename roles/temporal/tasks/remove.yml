@@ -1,0 +1,40 @@
+---
+- name: Remove Temporal UI ingress manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/temporal-ui-ingress.yml
+    state: absent
+
+- name: Remove Temporal UI service manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/temporal-ui-service.yml
+    state: absent
+
+- name: Remove Temporal UI deployment manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/temporal-ui-deployment.yml
+    state: absent
+
+- name: Remove Temporal server NodePort service manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/temporal-server-nodeport.yml
+    state: absent
+
+- name: Remove Temporal server service manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/temporal-server-service.yml
+    state: absent
+
+- name: Remove Temporal server deployment manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/temporal-server-deployment.yml
+    state: absent
+
+- name: Remove Temporal secret manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/temporal-secret.yml
+    state: absent
+
+- name: Remove Temporal namespace manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/temporal-namespace.yml
+    state: absent

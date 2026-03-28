@@ -1,0 +1,9 @@
+---
+# Nebula role defaults
+
+nebula_state: present
+
+nebula_version: "1.10.3"
+nebula_arch: "linux-amd64"
+nebula_install_dir: /usr/local/bin
+nebula_config_dir: /etc/nebula
