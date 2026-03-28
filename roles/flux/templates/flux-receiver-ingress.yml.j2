@@ -15,10 +15,10 @@ spec:
     - host: {{ flux_webhook_domain }}
       http:
         paths:
-          - path: /
+          - path: /hook
             pathType: Prefix
             backend:
               service:
-                name: notification-controller
+                name: webhook-receiver
                 port:
                   number: 80
