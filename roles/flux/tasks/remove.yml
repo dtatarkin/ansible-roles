@@ -47,7 +47,7 @@
 
 - name: Wait for K3s to uninstall flux Helm release
   ansible.builtin.command:
-    cmd: kubectl -n {{ flux_namespace }} get deployment flux-source-controller
+    cmd: kubectl -n {{ flux_namespace }} get deployment source-controller
   register: flux_check
   changed_when: false
   failed_when: false
