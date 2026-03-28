@@ -37,6 +37,9 @@ woodpecker_open_registration: false
 # Comma-separated list of GitHub usernames with admin privileges
 woodpecker_admin: "dtatarkin"
 
+# Flux webhook URL for image update notifications (set after Flux receiver is deployed)
+woodpecker_flux_webhook_url: ""
+
 # Docker registry hostname for CI image pulls
 woodpecker_docker_registry_host: ""
 

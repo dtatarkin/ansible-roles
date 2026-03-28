@@ -8,6 +8,7 @@ server:
     WOODPECKER_GITHUB_CLIENT: "{{ woodpecker_github_client }}"
     WOODPECKER_GITHUB_SECRET: "{{ woodpecker_github_secret }}"
     WOODPECKER_ADMIN: "{{ woodpecker_admin }}"
+    WOODPECKER_ENVIRONMENT: "FLUX_WEBHOOK_TOKEN:{{ woodpecker_flux_webhook_token }},FLUX_WEBHOOK_URL:{{ woodpecker_flux_webhook_url }}"
     WOODPECKER_PLUGINS_PRIVILEGED: "woodpeckerci/plugin-docker-buildx"
     WOODPECKER_AGENT_SECRET: "{{ woodpecker_agent_secret }}"
     WOODPECKER_DOCKER_CONFIG: "/etc/woodpecker/docker-config/config.json"
