@@ -8,6 +8,15 @@ spec:
     scheme: https
     permanent: true
 ---
+apiVersion: traefik.io/v1alpha1
+kind: Middleware
+metadata:
+  name: no-redirect
+  namespace: kube-system
+spec:
+  chain:
+    middlewares: []
+---
 apiVersion: helm.cattle.io/v1
 kind: HelmChartConfig
 metadata:

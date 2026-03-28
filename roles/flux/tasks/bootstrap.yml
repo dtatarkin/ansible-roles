@@ -40,3 +40,9 @@
     src: flux-receiver-ingress.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/flux-receiver-ingress.yml
     mode: "0600"
+
+- name: Deploy ACME solver network policy manifest
+  ansible.builtin.template:
+    src: flux-acme-solver-netpol.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/flux-acme-solver-netpol.yml
+    mode: "0600"
