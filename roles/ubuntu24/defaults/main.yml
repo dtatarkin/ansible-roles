@@ -10,4 +10,5 @@ ubuntu24_required_packages:
   - jq
   - net-tools
   - iotop-c
+  - iftop
 ubuntu24_extra_packages: []
