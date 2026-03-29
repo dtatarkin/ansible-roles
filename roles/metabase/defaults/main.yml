@@ -5,6 +5,7 @@ metabase_state: present
 # pmint93/metabase Helm chart
 # https://github.com/pmint93/helm-charts
 metabase_chart_version: "2.24.3"
+metabase_image_tag: "v0.57.x"
 metabase_chart_repo: "https://pmint93.github.io/helm-charts"
 metabase_namespace: metabase
 metabase_domain: "metabase.{{ infra_domain }}"
@@ -17,7 +18,7 @@ metabase_db_user: metabase
 metabase_db_name: metabase
 
 # NodePort for direct access
-metabase_node_port: 30009
+metabase_node_port: 30000
 
 # Resource requests (JVM app — 512Mi minimum)
 metabase_resources:
