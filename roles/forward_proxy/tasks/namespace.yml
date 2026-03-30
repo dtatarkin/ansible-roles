@@ -1,0 +1,6 @@
+---
+- name: Deploy forward proxy namespace manifest
+  ansible.builtin.template:
+    src: forward-proxy-namespace.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/forward-proxy-namespace.yml
+    mode: "0600"

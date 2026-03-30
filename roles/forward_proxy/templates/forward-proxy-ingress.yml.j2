@@ -1,0 +1,26 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: forward-proxy
+  namespace: {{ forward_proxy_namespace }}
+  labels:
+    app.kubernetes.io/name: forward-proxy
+  annotations:
+    cert-manager.io/cluster-issuer: "{{ forward_proxy_clusterissuer }}"
+spec:
+  ingressClassName: traefik
+  tls:
+    - secretName: forward-proxy-tls
+      hosts:
+        - "{{ forward_proxy_domain }}"
+  rules:
+    - host: "{{ forward_proxy_domain }}"
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: forward-proxy
+                port:
+                  number: {{ forward_proxy_pac_port }}

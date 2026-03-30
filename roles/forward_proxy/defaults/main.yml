@@ -1,0 +1,39 @@
+---
+# Role state: 'present' to deploy, 'absent' to remove
+forward_proxy_state: present
+
+forward_proxy_namespace: forward-proxy
+forward_proxy_image: "3proxy/3proxy:0.9.4"
+forward_proxy_nginx_image: "nginx:1.27-alpine"
+
+forward_proxy_port: 3128
+forward_proxy_node_port: 30000
+forward_proxy_pac_port: 80
+
+forward_proxy_domain: "proxy.{{ infra_domain }}"
+forward_proxy_clusterissuer: letsencrypt-production
+
+# Resource requests/limits for 3proxy container
+forward_proxy_resources:
+  requests:
+    cpu: 10m
+    memory: 16Mi
+
+# Resource requests/limits for PAC file nginx sidecar
+forward_proxy_pac_resources:
+  requests:
+    cpu: 10m
+    memory: 16Mi
+
+# Internal network CIDR for per-user access control (e.g. "10.46.0.0/16")
+# When empty, internal_network_access flag on users has no effect
+forward_proxy_internal_network: ""
+# Internal network address and netmask for PAC file (must match CIDR above)
+forward_proxy_internal_network_address: ""
+forward_proxy_internal_network_netmask: ""
+
+# Users list (from SOPS):
+# forward_proxy_users:
+#   - { name: "user1", password: "pass1", internal_network_access: false }
+#   - { name: "admin", password: "pass2", internal_network_access: true }
+forward_proxy_users: []

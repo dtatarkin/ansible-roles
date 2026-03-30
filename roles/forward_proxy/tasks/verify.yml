@@ -1,0 +1,9 @@
+---
+- name: Wait for forward proxy deployment
+  ansible.builtin.command:
+    cmd: kubectl -n {{ forward_proxy_namespace }} rollout status deployment/forward-proxy --timeout=300s
+  changed_when: false
+  retries: 3
+  delay: 15
+  register: forward_proxy_rollout
+  until: forward_proxy_rollout.rc == 0

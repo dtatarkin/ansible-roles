@@ -1,0 +1,34 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: forward-proxy
+  namespace: {{ forward_proxy_namespace }}
+data:
+  proxy.pac: |
+    function FindProxyForURL(url, host) {
+{% if forward_proxy_internal_network_address and forward_proxy_internal_network_netmask %}
+        if (isInNet(dnsResolve(host), "{{ forward_proxy_internal_network_address }}", "{{ forward_proxy_internal_network_netmask }}")) {
+            return "PROXY {{ forward_proxy_domain }}:{{ forward_proxy_node_port }}";
+        }
+{% endif %}
+        if (isPlainHostName(host) ||
+            shExpMatch(host, "*.local") ||
+            isInNet(dnsResolve(host), "10.0.0.0", "255.0.0.0") ||
+            isInNet(dnsResolve(host), "192.168.0.0", "255.255.0.0") ||
+            isInNet(dnsResolve(host), "172.16.0.0", "255.240.0.0")) {
+            return "DIRECT";
+        }
+        return "PROXY {{ forward_proxy_domain }}:{{ forward_proxy_node_port }}";
+    }
+  nginx.conf: |
+    server {
+        listen {{ forward_proxy_pac_port }};
+        location /proxy.pac {
+            alias /usr/share/nginx/html/proxy.pac;
+            types { application/x-ns-proxy-autoconfig pac; }
+            default_type application/x-ns-proxy-autoconfig;
+        }
+        location /healthz {
+            return 200 "ok";
+        }
+    }

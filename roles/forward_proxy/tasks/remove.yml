@@ -1,0 +1,35 @@
+---
+- name: Remove forward proxy ingress manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/forward-proxy-ingress.yml
+    state: absent
+
+- name: Remove forward proxy nodeport manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/forward-proxy-nodeport.yml
+    state: absent
+
+- name: Remove forward proxy service manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/forward-proxy-service.yml
+    state: absent
+
+- name: Remove forward proxy deployment manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/forward-proxy-deployment.yml
+    state: absent
+
+- name: Remove forward proxy configmap manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/forward-proxy-configmap.yml
+    state: absent
+
+- name: Remove forward proxy secret manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/forward-proxy-secret.yml
+    state: absent
+
+- name: Remove forward proxy namespace manifest
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/forward-proxy-namespace.yml
+    state: absent

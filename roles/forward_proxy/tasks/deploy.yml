@@ -1,0 +1,36 @@
+---
+- name: Deploy forward proxy configmap manifest
+  ansible.builtin.template:
+    src: forward-proxy-configmap.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/forward-proxy-configmap.yml
+    mode: "0600"
+
+- name: Deploy forward proxy secret manifest
+  ansible.builtin.template:
+    src: forward-proxy-secret.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/forward-proxy-secret.yml
+    mode: "0600"
+
+- name: Deploy forward proxy deployment manifest
+  ansible.builtin.template:
+    src: forward-proxy-deployment.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/forward-proxy-deployment.yml
+    mode: "0600"
+
+- name: Deploy forward proxy service manifest
+  ansible.builtin.template:
+    src: forward-proxy-service.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/forward-proxy-service.yml
+    mode: "0600"
+
+- name: Deploy forward proxy nodeport manifest
+  ansible.builtin.template:
+    src: forward-proxy-nodeport.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/forward-proxy-nodeport.yml
+    mode: "0600"
+
+- name: Deploy forward proxy ingress manifest
+  ansible.builtin.template:
+    src: forward-proxy-ingress.yml.j2
+    dest: /var/lib/rancher/k3s/server/manifests/forward-proxy-ingress.yml
+    mode: "0600"
