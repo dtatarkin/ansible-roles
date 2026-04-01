@@ -19,6 +19,17 @@ clickhouse_node_port_http: 30001
 clickhouse_databases: []
 clickhouse_users: []
 
+# System log tables configuration
+# TTL in days, set to 0 to disable a log entirely
+clickhouse_system_logs:
+  query_log: 7
+  query_views_log: 7
+  error_log: 7
+  part_log: 7
+  processors_profile_log: 0
+  asynchronous_insert_log: 0
+  background_schedule_pool_log: 0
+
 # Resource requests (tuned for cx23 instances)
 clickhouse_resources:
   requests:

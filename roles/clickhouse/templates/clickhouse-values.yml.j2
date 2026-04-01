@@ -9,6 +9,22 @@ replicaCount: 1
 clickhouse:
   accessManagement: {{ (clickhouse_users | length > 0) | lower }}
   users: []
+  customConfig:
+    system-logs.xml: |-
+      <clickhouse>
+{% for log_name, ttl_days in clickhouse_system_logs.items() %}
+{% if ttl_days == 0 %}
+          <{{ log_name }} remove="1" />
+{% else %}
+          <{{ log_name }}>
+              <database>system</database>
+              <table>{{ log_name }}</table>
+              <ttl>event_date + INTERVAL {{ ttl_days }} DAY DELETE</ttl>
+              <flush_interval_milliseconds>7500</flush_interval_milliseconds>
+          </{{ log_name }}>
+{% endif %}
+{% endfor %}
+      </clickhouse>
 
 service:
   type: ClusterIP
