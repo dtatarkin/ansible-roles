@@ -10,6 +10,11 @@ cnpg_chart_version: "0.27.1"
 cnpg_chart_repo: "https://cloudnative-pg.github.io/charts"
 cnpg_operator_namespace: cnpg-system
 
+# Optional CPU/memory requests/limits for the PostgreSQL instance pods.
+# Empty by default → CloudNativePG applies no resource constraints (BestEffort).
+# Example: {requests: {cpu: 200m, memory: 512Mi}}
+cnpg_resources: {}
+
 # PostgreSQL Cluster settings
 cnpg_namespace: postgres
 cnpg_cluster_name: postgres

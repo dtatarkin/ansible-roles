@@ -7,3 +7,17 @@ homepage_image: "ghcr.io/gethomepage/homepage:v1.12.3"
 homepage_port: 3000
 homepage_title: "Homepage"
 homepage_allowed_hosts: ""
+
+# Container probe settings. Defaults preserve the upstream behavior (k8s implicit
+# timeoutSeconds: 1, failureThreshold: 3); override per environment (e.g. raise
+# timeoutSeconds where the healthcheck can be slow under CPU contention).
+homepage_readiness_probe:
+  initialDelaySeconds: 5
+  periodSeconds: 10
+  timeoutSeconds: 1
+  failureThreshold: 3
+homepage_liveness_probe:
+  initialDelaySeconds: 5
+  periodSeconds: 15
+  timeoutSeconds: 1
+  failureThreshold: 3

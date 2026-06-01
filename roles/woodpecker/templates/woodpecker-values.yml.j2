@@ -1,4 +1,12 @@
 server:
+{% if woodpecker_server_probes %}
+  probes:
+{{ woodpecker_server_probes | to_nice_yaml(indent=2) | indent(4, true) }}
+{% endif %}
+{% if woodpecker_server_resources %}
+  resources:
+{{ woodpecker_server_resources | to_nice_yaml(indent=2) | indent(4, true) }}
+{% endif %}
   env:
     WOODPECKER_HOST: "https://{{ woodpecker_domain }}"
     WOODPECKER_DATABASE_DRIVER: postgres

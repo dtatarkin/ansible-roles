@@ -6,6 +6,10 @@ metadata:
 spec:
   instances: {{ cnpg_instances }}
   imageName: {{ cnpg_pg_image }}
+{% if cnpg_resources %}
+  resources:
+{{ cnpg_resources | to_nice_yaml(indent=2) | indent(4, true) }}
+{% endif %}
   enableSuperuserAccess: true
   superuserSecret:
     name: cnpg-superuser

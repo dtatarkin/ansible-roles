@@ -11,6 +11,11 @@ flux_chart_repo: "https://fluxcd-community.github.io/helm-charts"
 flux_chart_name: "flux2"
 flux_chart_version: "2.14.0"
 
+# Optional resource requests/limits applied to every Flux controller.
+# Empty by default → the Helm chart's own per-controller defaults apply.
+# Example: {requests: {cpu: 50m, memory: 64Mi}}
+flux_controller_resources: {}
+
 # Git repository for Flux to watch
 flux_git_url: ""
 flux_git_branch: "main"

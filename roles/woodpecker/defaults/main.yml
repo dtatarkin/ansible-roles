@@ -10,6 +10,14 @@ woodpecker_chart_repo: "https://woodpecker-ci.org/"
 
 woodpecker_namespace: "woodpecker"
 
+# Optional resource requests/limits for the woodpecker-server container.
+# Empty by default → chart defaults apply. Example: {requests: {cpu: 50m, memory: 128Mi}}
+woodpecker_server_resources: {}
+# Optional probe overrides for woodpecker-server (chart `server.probes`).
+# Empty by default → chart defaults apply.
+# Example: {liveness: {timeoutSeconds: 10, periodSeconds: 15, failureThreshold: 6}}
+woodpecker_server_probes: {}
+
 # Domain for UI access
 woodpecker_domain: "woodpecker.example.com"
 

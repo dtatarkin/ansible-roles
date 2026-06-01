@@ -50,14 +50,18 @@ spec:
             httpGet:
               path: /api/healthcheck
               port: http
-            initialDelaySeconds: 5
-            periodSeconds: 10
+            initialDelaySeconds: {{ homepage_readiness_probe.initialDelaySeconds }}
+            periodSeconds: {{ homepage_readiness_probe.periodSeconds }}
+            timeoutSeconds: {{ homepage_readiness_probe.timeoutSeconds }}
+            failureThreshold: {{ homepage_readiness_probe.failureThreshold }}
           livenessProbe:
             httpGet:
               path: /api/healthcheck
               port: http
-            initialDelaySeconds: 5
-            periodSeconds: 15
+            initialDelaySeconds: {{ homepage_liveness_probe.initialDelaySeconds }}
+            periodSeconds: {{ homepage_liveness_probe.periodSeconds }}
+            timeoutSeconds: {{ homepage_liveness_probe.timeoutSeconds }}
+            failureThreshold: {{ homepage_liveness_probe.failureThreshold }}
       volumes:
         - name: config-source
           configMap:

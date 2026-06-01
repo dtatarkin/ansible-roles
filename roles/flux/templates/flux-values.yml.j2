@@ -1,12 +1,14 @@
-helmController:
+{% macro controller(name) %}
+{{ name }}:
   create: true
-sourceController:
-  create: true
-kustomizeController:
-  create: true
-notificationController:
-  create: true
-imageAutomationController:
-  create: true
-imageReflectorController:
-  create: true
+{% if flux_controller_resources %}
+  resources:
+{{ flux_controller_resources | to_nice_yaml(indent=2) | indent(4, true) }}
+{% endif %}
+{% endmacro %}
+{{ controller('helmController') }}
+{{ controller('sourceController') }}
+{{ controller('kustomizeController') }}
+{{ controller('notificationController') }}
+{{ controller('imageAutomationController') }}
+{{ controller('imageReflectorController') }}
