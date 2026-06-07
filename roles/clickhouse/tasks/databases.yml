@@ -38,11 +38,13 @@
   no_log: true
   loop: "{{ clickhouse_users }}"
 
+# `database` may be a single name or a list of names; grants apply to every database listed.
 - name: Grant read access to users
   ansible.builtin.command:
     cmd: >-
       kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
-      clickhouse-client --query "GRANT SELECT ON {{ item.database }}.* TO {{ item.name }}"
+      clickhouse-client --multiquery --query
+      "{% for db in ([item.database] if item.database is string else item.database) %}GRANT SELECT ON {{ db }}.* TO {{ item.name }};{% endfor %}"
   changed_when: false
   loop: "{{ clickhouse_users | selectattr('access_level', 'equalto', 'read') | list }}"
 
@@ -50,13 +52,37 @@
   ansible.builtin.command:
     cmd: >-
       kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
-      clickhouse-client --query "GRANT SELECT, INSERT, ALTER, CREATE TABLE, DROP TABLE ON {{ item.database }}.* TO {{ item.name }}"
+      clickhouse-client --multiquery --query
+      "{% for db in ([item.database] if item.database is string else item.database) %}GRANT SELECT, INSERT, ALTER, CREATE TABLE, DROP TABLE ON {{ db }}.* TO {{ item.name }};{% endfor %}"
   changed_when: false
   loop: "{{ clickhouse_users | selectattr('access_level', 'equalto', 'write') | list }}"
 
-# Source privilege for users that load from object storage (e.g. the dlt staging path
-# `INSERT INTO db.table SELECT FROM s3(...)`). Opt-in per user via `s3_access: read` so users
-# without object-storage needs keep least privilege.
+# Owner (full) access, no grant option. For accounts that manage their own schema lifecycle —
+# creating, dropping, and truncating tables/views and creating databases within the database(s)
+# they own. Scoped to the listed database(s); ALL does not include WITH GRANT OPTION.
+- name: Grant owner (full) access to users
+  ansible.builtin.command:
+    cmd: >-
+      kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
+      clickhouse-client --multiquery --query
+      "{% for db in ([item.database] if item.database is string else item.database) %}GRANT ALL ON {{ db }}.* TO {{ item.name }};{% endfor %}"
+  changed_when: false
+  loop: "{{ clickhouse_users | selectattr('access_level', 'equalto', 'owner') | list }}"
+
+# Metadata introspection: SELECT on INFORMATION_SCHEMA, for clients that reconcile table schema
+# from INFORMATION_SCHEMA.COLUMNS / INFORMATION_SCHEMA.TABLES. INFORMATION_SCHEMA is a separate
+# database, so it is not covered by grants on a user's own database(s). Opt-in via
+# `schema_introspect: read`.
+- name: Grant INFORMATION_SCHEMA introspection to users
+  ansible.builtin.command:
+    cmd: >-
+      kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
+      clickhouse-client --query "GRANT SELECT ON INFORMATION_SCHEMA.* TO {{ item.name }}"
+  changed_when: false
+  loop: "{{ clickhouse_users | selectattr('schema_introspect', 'defined') | selectattr('schema_introspect', 'equalto', 'read') | list }}"
+
+# Source privilege for users that read from object storage (`INSERT ... SELECT FROM s3(...)`).
+# Opt-in per user via `s3_access: read` so users without object-storage needs keep least privilege.
 - name: Grant S3 source read access to users
   ansible.builtin.command:
     cmd: >-
