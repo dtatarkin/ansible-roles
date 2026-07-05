@@ -3,6 +3,18 @@
   ansible.builtin.include_tasks: remove.yml
   when: forward_proxy_state == 'absent'
 
+# The NodePort is baked into the served PAC config, so the role cannot
+# function without it — fail early instead of falling back to a guess.
+- name: Assert required NodePort allocation is defined
+  ansible.builtin.assert:
+    that: forward_proxy_node_port is defined
+    fail_msg: >-
+      forward_proxy_node_port is undefined. The forward proxy cannot work
+      without it — the PAC config points clients at
+      {{ forward_proxy_domain }}:<node_port>. Allocate a NodePort in the
+      consumer inventory.
+  when: forward_proxy_state == 'present'
+
 - name: Read forward proxy secrets from SOPS
   ansible.builtin.include_tasks: secret.yml
   when: forward_proxy_state == 'present'

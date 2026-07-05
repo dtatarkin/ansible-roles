@@ -88,7 +88,11 @@ Use roles in a playbook by their fully qualified collection name:
       monitoring_state: present
 ```
 
-Every role exposes sensible defaults in `defaults/main.yml`. Override what you need:
+Every role exposes sensible defaults in `defaults/main.yml` for what is
+intrinsic to the software it wraps. **Allocations** (NodePort numbers, domains)
+have no defaults — they are coordination decisions of the consuming deployment
+and must be set in its inventory; when an optional allocation is unset, the
+role skips creating that surface. Override what you need:
 
 ```yaml
 - role: dtatarkin.infra.valkey

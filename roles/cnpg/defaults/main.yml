@@ -22,7 +22,11 @@ cnpg_instances: 1
 cnpg_pg_image: "ghcr.io/cloudnative-pg/postgresql:17.4"
 cnpg_storage_class: local-path
 cnpg_storage_size: 5Gi
-cnpg_node_port: 30000
+
+# NodePort exposure is a consumer allocation — no default. Define
+# cnpg_node_port in inventory to add the NodePort service to the Cluster;
+# leave unset to skip it.
+# cnpg_node_port: (from inventory)
 
 # Initial database and owner created during bootstrap
 cnpg_bootstrap_database: app

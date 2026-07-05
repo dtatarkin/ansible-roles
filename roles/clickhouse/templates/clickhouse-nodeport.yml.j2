@@ -6,14 +6,18 @@ metadata:
 spec:
   type: NodePort
   ports:
+{% if clickhouse_node_port_tcp is defined %}
     - name: native
       port: 9000
       targetPort: 9000
       nodePort: {{ clickhouse_node_port_tcp }}
+{% endif %}
+{% if clickhouse_node_port_http is defined %}
     - name: http
       port: 8123
       targetPort: 8123
       nodePort: {{ clickhouse_node_port_http }}
+{% endif %}
   selector:
     app.kubernetes.io/name: clickhouse
     app.kubernetes.io/component: server

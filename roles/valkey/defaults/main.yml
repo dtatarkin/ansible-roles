@@ -12,7 +12,10 @@ valkey_chart_repo: "https://valkey-io.github.io/valkey-helm"
 valkey_namespace: valkey
 valkey_storage_class: local-path
 valkey_storage_size: 1Gi
-valkey_node_port: 30000
+# NodePort exposure is a consumer allocation — no default. Define
+# valkey_node_port in inventory to expose the service as NodePort; leave
+# unset for the chart's default ClusterIP service.
+# valkey_node_port: (from inventory)
 valkey_maxmemory: 256mb
 
 # Resource requests (tuned for cx23 instances)

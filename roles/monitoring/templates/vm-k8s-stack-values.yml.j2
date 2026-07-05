@@ -77,9 +77,11 @@ grafana:
     enabled: true
     storageClassName: {{ monitoring_grafana_storage_class }}
     size: {{ monitoring_grafana_storage_size }}
+{% if monitoring_grafana_node_port is defined %}
   service:
     type: NodePort
     nodePort: {{ monitoring_grafana_node_port }}
+{% endif %}
   ingress:
     enabled: true
     ingressClassName: traefik

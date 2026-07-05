@@ -13,7 +13,10 @@ docker_registry_storage_class: local-path
 
 docker_registry_storage_size: 5Gi
 
-docker_registry_node_port: 30000
+# NodePort exposure is a consumer allocation — no default. Define
+# docker_registry_node_port in inventory to create the NodePort Service;
+# leave unset to skip it.
+# docker_registry_node_port: (from inventory)
 
 docker_registry_hostname: "registry.{{ infra_domain }}"
 docker_registry_tls_enabled: true

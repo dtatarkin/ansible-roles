@@ -22,6 +22,15 @@
     src: temporal-server-nodeport.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/temporal-server-nodeport.yml
     mode: "0600"
+  when: temporal_grpc_node_port is defined
+
+# No port allocated → exposure is opt-in; drop the manifest so K3s prunes a
+# previously created Service.
+- name: Remove Temporal server NodePort service manifest (no port allocated)
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/temporal-server-nodeport.yml
+    state: absent
+  when: temporal_grpc_node_port is not defined
 
 - name: Deploy Temporal UI deployment manifest
   ansible.builtin.template:

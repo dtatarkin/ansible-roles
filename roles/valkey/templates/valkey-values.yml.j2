@@ -15,10 +15,12 @@ dataStorage:
 
 deploymentStrategy: Recreate
 
+{% if valkey_node_port is defined %}
 service:
   type: NodePort
   port: 6379
   nodePort: {{ valkey_node_port }}
+{% endif %}
 
 valkeyConfig: |
   maxmemory {{ valkey_maxmemory }}

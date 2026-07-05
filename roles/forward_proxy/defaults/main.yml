@@ -7,7 +7,10 @@ forward_proxy_image: "3proxy/3proxy:0.9.4"
 forward_proxy_nginx_image: "nginx:1.27-alpine"
 
 forward_proxy_port: 3128
-forward_proxy_node_port: 30000
+# NodePort is a consumer allocation — no default — and it is REQUIRED: the PAC
+# config points clients at forward_proxy_domain:forward_proxy_node_port, so the
+# role asserts it is defined instead of falling back.
+# forward_proxy_node_port: (from inventory)
 forward_proxy_pac_port: 80
 
 forward_proxy_domain: "proxy.{{ infra_domain }}"

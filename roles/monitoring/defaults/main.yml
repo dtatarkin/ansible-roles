@@ -20,7 +20,10 @@ monitoring_evaluation_interval: 30s
 
 # Grafana
 # monitoring_grafana_admin_password moved to all.sops.yml
-monitoring_grafana_node_port: 30000
+# NodePort exposure is a consumer allocation — no default. Define
+# monitoring_grafana_node_port in inventory to expose Grafana as NodePort;
+# leave unset for the chart's default ClusterIP service.
+# monitoring_grafana_node_port: (from inventory)
 monitoring_grafana_tls_enabled: true
 monitoring_grafana_clusterissuer: letsencrypt-production
 monitoring_grafana_storage_class: local-path

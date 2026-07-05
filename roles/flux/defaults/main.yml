@@ -28,6 +28,15 @@ flux_apps_path: "./flux/apps"
 flux_webhook_domain: "flux.{{ infra_domain | default('example.com') }}"
 flux_webhook_clusterissuer: letsencrypt-production
 
+# CI image webhook Receiver — consumer allocation, no app names baked in.
+# List the ImageRepository objects (defined in the consumer's GitOps tree)
+# that a CI push webhook should trigger scans for. Empty list ⇒ the Receiver
+# is not created.
+flux_image_repositories: []
+# Name of that Receiver; it determines the webhook URL path, so pick one that
+# matches the CI system calling it.
+flux_image_receiver_name: "ci"
+
 # SOPS age key file on the Ansible controller
 # Default: standard SOPS age key location
 flux_sops_age_key_file: "{{ lookup('env', 'HOME') }}/.config/sops/age/keys.txt"

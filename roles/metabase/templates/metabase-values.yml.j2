@@ -12,11 +12,13 @@ database:
   existingSecretPasswordKey: MB_DB_PASS
   existingSecretEncryptionKeyKey: MB_ENCRYPTION_SECRET_KEY
 
+{% if metabase_node_port is defined %}
 service:
   type: NodePort
   externalPort: 80
   internalPort: 3000
   nodePort: {{ metabase_node_port }}
+{% endif %}
 
 ingress:
   enabled: true

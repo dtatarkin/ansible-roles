@@ -16,3 +16,12 @@
     src: clickhouse-nodeport.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/clickhouse-nodeport.yml
     mode: "0600"
+  when: clickhouse_node_port_tcp is defined or clickhouse_node_port_http is defined
+
+# No port allocated → exposure is opt-in; drop the manifest so K3s prunes a
+# previously created Service.
+- name: Remove clickhouse NodePort service manifest (no port allocated)
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/clickhouse-nodeport.yml
+    state: absent
+  when: clickhouse_node_port_tcp is not defined and clickhouse_node_port_http is not defined

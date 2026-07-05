@@ -21,7 +21,10 @@ temporal_db_visibility_name: "temporal_visibility"
 temporal_grpc_port: 7233
 temporal_http_port: 7234
 temporal_ui_port: 8080
-temporal_grpc_node_port: 30000
+# NodePort exposure is a consumer allocation — no default. Define
+# temporal_grpc_node_port in inventory to create the NodePort Service;
+# leave unset to skip it.
+# temporal_grpc_node_port: (from inventory)
 
 # Domain for UI access
 temporal_domain: "temporal.{{ infra_domain }}"

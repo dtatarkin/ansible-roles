@@ -46,6 +46,15 @@
     src: flux-image-receiver.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/flux-image-receiver.yml
     mode: "0600"
+  when: flux_image_repositories | length > 0
+
+# No ImageRepositories listed → the Receiver is not wanted; drop the manifest
+# so K3s prunes a previously created one.
+- name: Remove image webhook receiver manifest (no image repositories)
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/flux-image-receiver.yml
+    state: absent
+  when: flux_image_repositories | length == 0
 
 - name: Deploy webhook receiver ingress manifest
   ansible.builtin.template:

@@ -12,8 +12,12 @@ clickhouse_chart_repo: "https://helm-charts.sinextra.dev"
 clickhouse_namespace: clickhouse
 clickhouse_storage_class: local-path
 clickhouse_storage_size: 5Gi
-clickhouse_node_port_tcp: 30000
-clickhouse_node_port_http: 30001
+
+# NodePort exposure is a consumer allocation — no defaults. Define
+# clickhouse_node_port_tcp and/or clickhouse_node_port_http in inventory to
+# create the NodePort Service; leave both unset to skip it.
+# clickhouse_node_port_tcp: (from inventory)
+# clickhouse_node_port_http: (from inventory)
 
 # Databases and users to create after ClickHouse starts
 clickhouse_databases: []

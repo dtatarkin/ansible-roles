@@ -10,3 +10,12 @@
     src: docker-registry-nodeport.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/docker-registry-nodeport.yml
     mode: "0600"
+  when: docker_registry_node_port is defined
+
+# No port allocated → exposure is opt-in; drop the manifest so K3s prunes a
+# previously created Service.
+- name: Remove docker-registry NodePort service manifest (no port allocated)
+  ansible.builtin.file:
+    path: /var/lib/rancher/k3s/server/manifests/docker-registry-nodeport.yml
+    state: absent
+  when: docker_registry_node_port is not defined
