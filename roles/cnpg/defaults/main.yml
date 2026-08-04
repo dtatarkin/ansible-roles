@@ -15,6 +15,25 @@ cnpg_operator_namespace: cnpg-system
 # Example: {requests: {cpu: 200m, memory: 512Mi}}
 cnpg_resources: {}
 
+# Extra PostgreSQL settings merged into the Cluster's spec.postgresql.parameters.
+# Empty by default → only CloudNativePG's own defaults apply, which for memory
+# leaves the PostgreSQL built-ins in force (work_mem 4MB, shared_buffers 128MB).
+# Sizing these is a workload measurement the consuming deployment owns, so the
+# role ships no values; set them in the consumer's inventory.
+# Example: {work_mem: 16MB}
+#
+# Values must be YAML strings — CloudNativePG rejects a bare number, so write
+# `max_connections: "200"`, not `max_connections: 200`.
+#
+# How a change is applied depends on the setting's PostgreSQL context:
+#   - `user`/`superuser` context (work_mem, hash_mem_multiplier) → config reload,
+#     no downtime;
+#   - `postmaster` context (shared_buffers, max_connections, wal_buffers) →
+#     CloudNativePG restarts the instance. With `cnpg_instances: 1` that is a
+#     full outage of every database in the cluster, so check the context before
+#     adding a setting here.
+cnpg_postgresql_parameters: {}
+
 # PostgreSQL Cluster settings
 cnpg_namespace: postgres
 cnpg_cluster_name: postgres

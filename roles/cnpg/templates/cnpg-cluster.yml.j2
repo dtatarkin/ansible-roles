@@ -10,6 +10,11 @@ spec:
   resources:
 {{ cnpg_resources | to_nice_yaml(indent=2) | indent(4, true) }}
 {% endif %}
+{% if cnpg_postgresql_parameters %}
+  postgresql:
+    parameters:
+{{ cnpg_postgresql_parameters | to_nice_yaml(indent=2) | indent(6, true) }}
+{% endif %}
   enableSuperuserAccess: true
   superuserSecret:
     name: cnpg-superuser
