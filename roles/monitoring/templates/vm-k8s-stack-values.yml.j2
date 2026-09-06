@@ -111,6 +111,15 @@ grafana:
       enabled: true
     datasources:
       enabled: true
+{% if monitoring_grafana_plugins %}
+  # Grafana's asynchronous preinstall variable rather than the chart's `plugins:` list, which
+  # this chart version renders as the synchronous GF_PLUGINS_PREINSTALL_SYNC: a synchronous
+  # install that cannot reach the plugin catalog keeps Grafana from starting at all, while an
+  # asynchronous failure is a log line and one datasource that stays unusable until the next
+  # restart installs the plugin.
+  env:
+    GF_PLUGINS_PREINSTALL: "{{ monitoring_grafana_plugins | join(',') }}"
+{% endif %}
   resources:
     requests:
       cpu: "{{ monitoring_grafana_resources.requests.cpu }}"

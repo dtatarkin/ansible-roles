@@ -28,6 +28,11 @@ monitoring_grafana_tls_enabled: true
 monitoring_grafana_clusterissuer: letsencrypt-production
 monitoring_grafana_storage_class: local-path
 monitoring_grafana_storage_size: 1Gi
+# Grafana plugins to preinstall, as Grafana's own `<id>@<version>` entries (an entry
+# without `@<version>` installs the newest). Grafana downloads them from its plugin
+# catalog when the pod starts, so the node needs outbound access to it, and keeps them
+# on its persistent volume. Empty renders nothing.
+monitoring_grafana_plugins: []
 
 # Alert receiver (blackhole = no notifications)
 monitoring_alertmanager_receiver: blackhole
