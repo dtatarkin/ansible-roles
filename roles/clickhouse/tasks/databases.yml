@@ -32,7 +32,8 @@
   ansible.builtin.command:
     cmd: >-
       kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
-      clickhouse-client --query "CREATE USER IF NOT EXISTS {{ item.name }} IDENTIFIED WITH sha256_hash BY '{{ clickhouse_password_hashes[item.name] }}';
+      clickhouse-client --query "CREATE USER IF NOT EXISTS {{ item.name }}
+      IDENTIFIED WITH sha256_hash BY '{{ clickhouse_password_hashes[item.name] }}';
       ALTER USER {{ item.name }} IDENTIFIED WITH sha256_hash BY '{{ clickhouse_password_hashes[item.name] }}'"
   changed_when: false
   no_log: true
@@ -44,7 +45,8 @@
     cmd: >-
       kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
       clickhouse-client --multiquery --query
-      "{% for db in ([item.database] if item.database is string else item.database) %}GRANT SELECT ON {{ db }}.* TO {{ item.name }};{% endfor %}"
+      "{% for db in ([item.database] if item.database is string else item.database)
+      %}GRANT SELECT ON {{ db }}.* TO {{ item.name }};{% endfor %}"
   changed_when: false
   loop: "{{ clickhouse_users | selectattr('access_level', 'equalto', 'read') | list }}"
 
@@ -53,7 +55,8 @@
     cmd: >-
       kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
       clickhouse-client --multiquery --query
-      "{% for db in ([item.database] if item.database is string else item.database) %}GRANT SELECT, INSERT, ALTER, CREATE TABLE, DROP TABLE ON {{ db }}.* TO {{ item.name }};{% endfor %}"
+      "{% for db in ([item.database] if item.database is string else item.database)
+      %}GRANT SELECT, INSERT, ALTER, CREATE TABLE, DROP TABLE ON {{ db }}.* TO {{ item.name }};{% endfor %}"
   changed_when: false
   loop: "{{ clickhouse_users | selectattr('access_level', 'equalto', 'write') | list }}"
 
@@ -65,7 +68,8 @@
     cmd: >-
       kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
       clickhouse-client --multiquery --query
-      "{% for db in ([item.database] if item.database is string else item.database) %}GRANT ALL ON {{ db }}.* TO {{ item.name }};{% endfor %}"
+      "{% for db in ([item.database] if item.database is string else item.database)
+      %}GRANT ALL ON {{ db }}.* TO {{ item.name }};{% endfor %}"
   changed_when: false
   loop: "{{ clickhouse_users | selectattr('access_level', 'equalto', 'owner') | list }}"
 
@@ -79,7 +83,9 @@
       kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
       clickhouse-client --query "GRANT SELECT ON INFORMATION_SCHEMA.* TO {{ item.name }}"
   changed_when: false
-  loop: "{{ clickhouse_users | selectattr('schema_introspect', 'defined') | selectattr('schema_introspect', 'equalto', 'read') | list }}"
+  loop: >-
+    {{ clickhouse_users | selectattr('schema_introspect', 'defined')
+    | selectattr('schema_introspect', 'equalto', 'read') | list }}
 
 # Source privilege for users that read from object storage (`INSERT ... SELECT FROM s3(...)`).
 # Opt-in per user via `s3_access: read` so users without object-storage needs keep least privilege.
@@ -89,4 +95,6 @@
       kubectl -n {{ clickhouse_namespace }} exec clickhouse-0 --
       clickhouse-client --query "GRANT READ ON S3 TO {{ item.name }}"
   changed_when: false
-  loop: "{{ clickhouse_users | selectattr('s3_access', 'defined') | selectattr('s3_access', 'equalto', 'read') | list }}"
+  loop: >-
+    {{ clickhouse_users | selectattr('s3_access', 'defined')
+    | selectattr('s3_access', 'equalto', 'read') | list }}

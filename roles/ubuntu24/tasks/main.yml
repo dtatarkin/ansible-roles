@@ -1,7 +1,9 @@
 ---
 - name: Check OS version and family
   ansible.builtin.fail:
-    msg: "This role can only be run against Ubuntu 24. {{ ansible_facts.distribution }} {{ ansible_facts.distribution_major_version }} is not supported."
+    msg: >-
+      This role can only be run against Ubuntu 24.
+      {{ ansible_facts.distribution }} {{ ansible_facts.distribution_major_version }} is not supported.
   when:
     - ansible_facts.distribution == 'Ubuntu'
     - ansible_facts.distribution_major_version is version_compare('24', '!=')

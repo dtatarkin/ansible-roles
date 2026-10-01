@@ -1,12 +1,15 @@
 # dtatarkin.infra
 
-Ansible Galaxy collection for provisioning a full-stack infrastructure on a single VPS &mdash; from base OS setup and mesh networking to a production-ready Kubernetes platform with databases, monitoring, CI/CD, and GitOps.
+Ansible Galaxy collection for provisioning a full-stack infrastructure on a
+single VPS &mdash; from base OS setup and mesh networking to a production-ready
+Kubernetes platform with databases, monitoring, CI/CD, and GitOps.
 
 Built around **K3s** on **Ubuntu 24 (Noble)** with **Hetzner Cloud** support and **Nebula** overlay networking.
 
 ## Key Features
 
-- **State-driven roles** &mdash; every role supports `present` / `absent` via a `<role>_state` variable, making teardown as easy as setup
+- **State-driven roles** &mdash; every role supports `present` / `absent` via a
+  `<role>_state` variable, making teardown as easy as setup
 - **Zero-touch Helm** &mdash; K3s HelmChart CRDs auto-apply manifests; no external Helm binary required
 - **SOPS secrets** &mdash; encrypted inventory files, decrypted at runtime, never stored on disk
 - **Small-VPS-friendly** &mdash; resource defaults tuned for Hetzner cx23 (2 vCPU / 4 GB RAM)
@@ -103,7 +106,7 @@ role skips creating that surface. Override what you need:
 
 ## Recommended Deployment Order
 
-```
+```text
 ubuntu24 / hcloud_volumes     # OS & storage
         |
       nebula                  # Mesh networking

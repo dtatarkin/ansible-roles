@@ -1,0 +1,9 @@
+# House values from the lint standard's markup topic. `document-start` is off
+# because hook configurations and generated metadata carry no leading marker;
+# 120 is the house width, shared with the markdown rules.
+extends: default
+
+rules:
+  document-start: disable
+  line-length:
+    max: 120

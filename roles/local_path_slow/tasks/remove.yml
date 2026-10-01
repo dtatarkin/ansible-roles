@@ -36,6 +36,8 @@
 
 - name: Delete local-path-slow ServiceAccount
   ansible.builtin.command:
-    cmd: kubectl delete serviceaccount local-path-slow-service-account -n {{ local_path_slow_namespace }} --ignore-not-found
+    cmd: >-
+      kubectl delete serviceaccount local-path-slow-service-account
+      -n {{ local_path_slow_namespace }} --ignore-not-found
   changed_when: "'deleted' in local_path_slow_sa_delete.stdout"
   register: local_path_slow_sa_delete

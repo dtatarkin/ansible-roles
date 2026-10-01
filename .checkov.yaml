@@ -1,0 +1,23 @@
+# One rule is skipped repository-wide. The house form is an inline
+# `# checkov:skip=<id>: <reason>` beside the code it excuses; this entry exists
+# only because that form cannot be used here, for the three reasons below.
+#
+# CKV2_ANSIBLE_3 ("Ensure block is handling task errors properly") demands a
+# `rescue:` on every `block:`.
+#
+# - Every `block:` in these roles exists only to share a `when:` between its
+#   tasks. None is an error-handling construct: a task that fails there is
+#   meant to fail the play, which is what happens without a `rescue:`.
+# - Adding a `rescue:` would change how a released role fails, so the finding
+#   cannot be fixed without changing behaviour a consumer may depend on.
+# - checkov does not apply an inline skip comment to a block resource.
+#   Measured on checkov 3.2.508: `checkov/ansible/utils.py` line 171 files the
+#   block's skip comments under the key `block..<name>`, while the graph vertex
+#   the check runs on has the id `block.<name>`
+#   (`checkov/ansible/graph_builder/local_graph.py` line 135), so the lookup
+#   never finds them and the finding stays failed. Upstream's main branch
+#   carried the same line on 2026-10-01.
+#
+# Remove this entry once upstream fixes that lookup: the three blocks then take
+# an inline skip each, and a new `block:` is checked again.
+skip-check: [CKV2_ANSIBLE_3]
