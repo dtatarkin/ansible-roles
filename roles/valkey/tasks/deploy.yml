@@ -4,6 +4,7 @@
     src: valkey-secret.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/valkey-secret.yml
     mode: "0600"
+  diff: false
 
 - name: Deploy valkey HelmChart manifest
   ansible.builtin.template:

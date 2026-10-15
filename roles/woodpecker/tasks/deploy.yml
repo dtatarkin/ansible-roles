@@ -18,9 +18,11 @@
     src: woodpecker-docker-config-secret.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/woodpecker-docker-config-secret.yml
     mode: "0600"
+  diff: false
 
 - name: Deploy woodpecker HelmChart manifest
   ansible.builtin.template:
     src: woodpecker-helmchart.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/woodpecker-helmchart.yml
     mode: "0600"
+  diff: false

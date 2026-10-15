@@ -4,6 +4,7 @@
     src: metabase-secret.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/metabase-secret.yml
     mode: "0600"
+  diff: false
 
 - name: Deploy metabase HelmChart manifest
   ansible.builtin.template:

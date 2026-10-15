@@ -4,3 +4,4 @@
     src: vm-k8s-stack-helmchart.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/vm-k8s-stack-helmchart.yml
     mode: "0600"
+  diff: false

@@ -4,6 +4,7 @@
     src: clickhouse-secret.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/clickhouse-secret.yml
     mode: "0600"
+  diff: false
 
 - name: Deploy clickhouse HelmChart manifest
   ansible.builtin.template:

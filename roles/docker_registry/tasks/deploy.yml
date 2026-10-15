@@ -4,6 +4,7 @@
     src: docker-registry-helmchart.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/docker-registry-helmchart.yml
     mode: "0600"
+  diff: false
 
 - name: Deploy docker-registry NodePort service manifest
   ansible.builtin.template:

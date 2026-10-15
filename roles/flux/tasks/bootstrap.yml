@@ -4,12 +4,14 @@
     src: flux-sops-age-secret.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/flux-sops-age-secret.yml
     mode: "0600"
+  diff: false
 
 - name: Deploy git auth secret manifest
   ansible.builtin.template:
     src: flux-git-auth-secret.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/flux-git-auth-secret.yml
     mode: "0600"
+  diff: false
 
 - name: Deploy GitRepository source manifest
   ansible.builtin.template:
@@ -28,12 +30,14 @@
     src: flux-registry-secret.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/flux-registry-secret.yml
     mode: "0600"
+  diff: false
 
 - name: Deploy webhook receiver secret manifest
   ansible.builtin.template:
     src: flux-receiver-secret.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/flux-receiver-secret.yml
     mode: "0600"
+  diff: false
 
 - name: Deploy webhook receiver manifest
   ansible.builtin.template:

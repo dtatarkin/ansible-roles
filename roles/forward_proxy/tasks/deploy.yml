@@ -10,6 +10,7 @@
     src: forward-proxy-secret.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/forward-proxy-secret.yml
     mode: "0600"
+  diff: false
 
 - name: Deploy forward proxy deployment manifest
   ansible.builtin.template:

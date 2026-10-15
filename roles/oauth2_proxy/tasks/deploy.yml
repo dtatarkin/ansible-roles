@@ -4,6 +4,7 @@
     src: oauth2-proxy-secret.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/oauth2-proxy-secret.yml
     mode: "0600"
+  diff: false
 
 - name: Deploy OAuth2 Proxy emails ConfigMap manifest
   ansible.builtin.template:

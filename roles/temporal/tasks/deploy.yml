@@ -4,6 +4,7 @@
     src: temporal-secret.yml.j2
     dest: /var/lib/rancher/k3s/server/manifests/temporal-secret.yml
     mode: "0600"
+  diff: false
 
 - name: Deploy Temporal server deployment manifest
   ansible.builtin.template:

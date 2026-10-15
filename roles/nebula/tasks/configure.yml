@@ -36,6 +36,7 @@
     owner: root
     group: root
     mode: "0600"
+  diff: false
   notify: Restart nebula
 
 - name: Clean up temporary config file

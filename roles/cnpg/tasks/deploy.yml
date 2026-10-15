@@ -19,6 +19,7 @@
     dest: /var/lib/rancher/k3s/server/manifests/cnpg-superuser-secret.yml
     mode: "0600"
   no_log: true
+  diff: false
 
 - name: Deploy CNPG app secret manifest
   ansible.builtin.template:
@@ -26,6 +27,7 @@
     dest: /var/lib/rancher/k3s/server/manifests/cnpg-app-secret.yml
     mode: "0600"
   no_log: true
+  diff: false
 
 - name: Deploy CNPG user secrets manifest
   ansible.builtin.template:
@@ -34,4 +36,5 @@
     mode: "0600"
   loop: "{{ cnpg_users }}"
   no_log: true
+  diff: false
   when: cnpg_state == 'present' and (cnpg_users | length > 0) and cnpg_passwords[item.name] is defined
