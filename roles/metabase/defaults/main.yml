@@ -5,11 +5,20 @@ metabase_state: present
 # pmint93/metabase Helm chart
 # https://github.com/pmint93/helm-charts
 metabase_chart_version: "2.24.3"
-metabase_image_tag: "v0.57.x"
+# The newest exact tag this role has been run with; set your own in inventory.
+# Never a floating `.x` tag: those follow Metabase's nightly four-part builds,
+# one of which shipped the next major's migrations, and with the chart's
+# IfNotPresent pull policy the running build becomes whatever the node cached.
+metabase_image_tag: "v0.63.20"
 metabase_chart_repo: "https://pmint93.github.io/helm-charts"
 metabase_namespace: metabase
 metabase_domain: "metabase.{{ infra_domain }}"
 metabase_clusterissuer: letsencrypt-production
+
+# Deployment rollout strategy. Metabase migrates its app database on startup,
+# and two versions must never run against that database at once, so the old
+# pod stops before the new one starts.
+metabase_deployment_strategy: Recreate
 
 # Backend database connection (CNPG)
 metabase_db_host: postgres-rw.postgres.svc.cluster.local

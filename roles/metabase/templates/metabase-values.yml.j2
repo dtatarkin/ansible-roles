@@ -2,6 +2,9 @@ image:
   repository: metabase/metabase
   tag: "{{ metabase_image_tag }}"
 
+strategy:
+  type: "{{ metabase_deployment_strategy }}"
+
 database:
   type: postgres
   host: {{ metabase_db_host }}
