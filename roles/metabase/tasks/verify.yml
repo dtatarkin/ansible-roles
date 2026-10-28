@@ -1,4 +1,20 @@
 ---
+# Each check names the release this run asked for. `rollout status` alone also
+# passes on the Deployment as it was before the Helm job applied the new one,
+# and a ready pod proves neither its image nor that migrations finished. The
+# image wait is as long as the Helm job wait: a run that resumes an earlier,
+# interrupted one may have found that job before K3s replaced it.
+- name: Wait for the Metabase Deployment to request the target image
+  ansible.builtin.command:
+    cmd: >-
+      kubectl -n {{ metabase_namespace }} get deployment metabase
+      -o 'jsonpath={.spec.template.spec.containers[?(@.name=="metabase")].image}'
+  changed_when: false
+  register: metabase_deployment_image
+  retries: 60
+  delay: 5
+  until: metabase_deployment_image.stdout == 'metabase/metabase:' ~ metabase_image_tag
+
 - name: Wait for Metabase Deployment rollout
   ansible.builtin.command:
     cmd: kubectl -n {{ metabase_namespace }} rollout status deployment/metabase --timeout=1200s
@@ -7,6 +23,43 @@
   delay: 5
   register: metabase_rollout
   until: metabase_rollout.rc == 0
+
+- name: Read the Metabase service port
+  ansible.builtin.command:
+    cmd: kubectl -n {{ metabase_namespace }} get svc metabase -o 'jsonpath={.spec.ports[0].port}'
+  changed_when: false
+  register: metabase_service_port
+
+# Through the API server's service proxy, so the checks need neither the node
+# port nor the ingress. `kubectl get --raw` fails on any non-2xx answer.
+- name: Locate the Metabase service proxy
+  ansible.builtin.set_fact:
+    metabase_service_proxy: >-
+      /api/v1/namespaces/{{ metabase_namespace }}/services/metabase:{{ metabase_service_port.stdout }}/proxy
+
+- name: Wait for Metabase health
+  ansible.builtin.command:
+    cmd: kubectl get --raw {{ metabase_service_proxy }}/api/health
+  changed_when: false
+  register: metabase_health
+  retries: 12
+  delay: 5
+  until: metabase_health.rc == 0 and (metabase_health.stdout | from_json).status == 'ok'
+
+- name: Read the running Metabase version
+  ansible.builtin.command:
+    cmd: kubectl get --raw {{ metabase_service_proxy }}/api/session/properties
+  changed_when: false
+  register: metabase_properties
+
+- name: Require the target Metabase version
+  ansible.builtin.assert:
+    that:
+      - metabase_running_version == metabase_image_tag
+    fail_msg: "Metabase serves {{ metabase_running_version }}, expected {{ metabase_image_tag }}"
+    success_msg: "Metabase serves {{ metabase_running_version }}"
+  vars:
+    metabase_running_version: "{{ (metabase_properties.stdout | from_json).version.tag | default('no version') }}"
 
 - name: Show Metabase pods
   ansible.builtin.command:
