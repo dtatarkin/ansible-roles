@@ -1,6 +1,8 @@
 ---
 galaxy_info:
   role_name: nebula
+  author: dtatarkin
+  license: MIT
   description: Deploy or remove Nebula overlay network mesh
   min_ansible_version: "2.15"
   platforms:

@@ -1,6 +1,8 @@
 ---
 galaxy_info:
   role_name: cnpg
+  author: dtatarkin
+  license: MIT
   description: Deploy or remove CloudNativePG on K3s
   min_ansible_version: "2.15"
   platforms:

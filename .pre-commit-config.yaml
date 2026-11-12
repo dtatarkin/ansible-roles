@@ -5,8 +5,10 @@
 # here, so those infrastructure hooks are not carried; the justfile and nix
 # hooks are inert, because there is neither.
 #
-# No lockfile here pins a tool, so every local hook calls its tool by name and
-# expects it on PATH: ansible-lint, checkov and trivy.
+# No lockfile here pins a tool. ansible-lint and checkov are hosted hooks,
+# installed by the hook runner at their own `rev:`, so neither comes from a
+# virtual environment above this repository. terraform, tflint and trivy are
+# called by name and come from the toolchain above it.
 repos:
   - repo: https://github.com/pre-commit/pre-commit-hooks
     rev: v6.0.0
@@ -55,6 +57,33 @@ repos:
       - id: rumdl-check
         args: [--fix]
 
+  # Whole-project and offline: it never fetches a collection mid-commit.
+  # Serial because it writes a shared collection path. The community `ansible`
+  # package carries the collections the roles call, which upstream's core
+  # engine alone does not; `always_run: false` keeps the path filter in charge.
+  - repo: https://github.com/ansible/ansible-lint
+    rev: v26.11.0
+    hooks:
+      - id: ansible-lint
+        args: [--offline]
+        additional_dependencies: [ansible]
+        files: ^(roles|meta)/|^galaxy\.yml$
+        exclude: \.sops\.ya?ml$
+        always_run: false
+        require_serial: true
+        pass_filenames: false
+
+  # Reads .checkov.yaml from the repository root, the directory a hook runs
+  # in. That file skips one rule and says why. The entry is the house command,
+  # because upstream's scans the whole root.
+  - repo: https://github.com/bridgecrewio/checkov
+    rev: 3.4.3
+    hooks:
+      - id: checkov
+        entry: checkov --quiet --directory roles
+        files: ^roles/
+        pass_filenames: false
+
   - repo: local
     hooks:
       - id: format-justfile
@@ -68,26 +97,6 @@ repos:
         entry: nixfmt
         language: system
         files: \.nix$
-
-      # Whole-project and offline: it never fetches a collection mid-commit.
-      # Serial because it writes a shared collection path.
-      - id: ansible-lint
-        name: ansible-lint
-        entry: ansible-lint --offline
-        language: system
-        files: ^(roles|meta)/|^galaxy\.yml$
-        exclude: \.sops\.ya?ml$
-        require_serial: true
-        pass_filenames: false
-
-      # Reads .checkov.yaml from the repository root, the directory a hook
-      # runs in. That file skips one rule and says why.
-      - id: checkov
-        name: checkov
-        entry: checkov --quiet --directory roles
-        language: system
-        files: ^roles/
-        pass_filenames: false
 
       - id: trivy-config
         name: trivy config
