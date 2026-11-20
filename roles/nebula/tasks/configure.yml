@@ -11,7 +11,11 @@
   ansible.builtin.include_tasks: host_key.yml
   when: nebula_host_key_manage | bool
 
+# Generation runs on the controller for real and may issue certificates into the
+# PKI or read the host's stored key, so a check run neither generates nor copies
+# the config: it reports the host key and service tasks only.
 - name: Create temporary config file
+  when: not ansible_check_mode
   ansible.builtin.tempfile:
     state: file
     suffix: .nebula-config.yml
@@ -21,6 +25,7 @@
   register: nebula_config_tmpfile
 
 - name: Generate nebula config
+  when: not ansible_check_mode
   ansible.builtin.command:
     argv: "{{ nebula_config_generate_command + ['--output', nebula_config_tmpfile.path, nebula_host_name] }}"
   delegate_to: localhost
@@ -28,6 +33,7 @@
   changed_when: false
 
 - name: Copy generated config to remote host
+  when: not ansible_check_mode
   ansible.builtin.copy:
     src: "{{ nebula_config_tmpfile.path }}"
     dest: "{{ nebula_config_dir }}/config.yml"
@@ -39,6 +45,7 @@
   notify: Restart nebula
 
 - name: Clean up temporary config file
+  when: not ansible_check_mode
   ansible.builtin.file:
     path: "{{ nebula_config_tmpfile.path }}"
     state: absent
