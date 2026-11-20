@@ -1,0 +1,70 @@
+---
+- name: Require a signing command
+  ansible.builtin.assert:
+    that:
+      - nebula_host_cert_sign_command | length > 0
+    fail_msg: nebula_host_key_manage needs nebula_host_cert_sign_command, the controller command that signs the key.
+    quiet: true
+
+# nebula-cert writes the private key with mode 0600, owned by the become user.
+- name: Generate the host key pair on the host
+  ansible.builtin.command:
+    argv:
+      - "{{ nebula_install_dir }}/nebula-cert"
+      - keygen
+      - -curve
+      - "{{ nebula_host_key_curve }}"
+      - -out-key
+      - "{{ nebula_config_dir }}/host.key"
+      - -out-pub
+      - "{{ nebula_config_dir }}/host.pub"
+    creates: "{{ nebula_config_dir }}/host.key"
+  register: nebula_host_keygen
+
+- name: Check for the host public key
+  ansible.builtin.stat:
+    path: "{{ nebula_config_dir }}/host.pub"
+  register: nebula_host_pub_stat
+
+- name: Sign the host public key on the controller
+  when:
+    - nebula_host_pub_stat.stat.exists
+    - nebula_host_keygen is changed or nebula_host_cert_sign | bool
+  block:
+    # Only the public key leaves the host.
+    - name: Read the host public key
+      ansible.builtin.slurp:
+        src: "{{ nebula_config_dir }}/host.pub"
+      register: nebula_host_pub
+
+    - name: Create a controller-side copy of the public key
+      ansible.builtin.tempfile:
+        state: file
+        suffix: .nebula-host.pub
+      delegate_to: localhost
+      become: false
+      register: nebula_host_pub_tmpfile
+
+    - name: Write the public key copy
+      ansible.builtin.copy:
+        content: "{{ nebula_host_pub.content | b64decode }}"
+        dest: "{{ nebula_host_pub_tmpfile.path }}"
+        mode: "0600"
+      delegate_to: localhost
+      become: false
+
+    - name: Sign the host public key
+      ansible.builtin.command:
+        argv: "{{ nebula_host_cert_sign_command + [inventory_hostname, nebula_host_pub_tmpfile.path] }}"
+      delegate_to: localhost
+      become: false
+      changed_when: true
+
+  always:
+    - name: Remove the public key copy
+      ansible.builtin.file:
+        path: "{{ nebula_host_pub_tmpfile.path }}"
+        state: absent
+      delegate_to: localhost
+      become: false
+      when: nebula_host_pub_tmpfile.path is defined

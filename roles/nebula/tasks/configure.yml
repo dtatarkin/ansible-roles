@@ -1,4 +1,16 @@
 ---
+- name: Ensure nebula config directory exists
+  ansible.builtin.file:
+    path: "{{ nebula_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Manage the host key
+  ansible.builtin.include_tasks: host_key.yml
+  when: nebula_host_key_manage | bool
+
 - name: Create temporary config file
   ansible.builtin.tempfile:
     state: file
@@ -10,24 +22,10 @@
 
 - name: Generate nebula config
   ansible.builtin.command:
-    cmd: >-
-      uv run nebula-config
-      --pki-base-path {{ playbook_dir }}/../../nebula-config
-      --config {{ playbook_dir }}/../../nebula-config/nebula-network.config.yml
-      config generate
-      --output {{ nebula_config_tmpfile.path }}
-      {{ inventory_hostname }}
+    argv: "{{ nebula_config_generate_command + ['--output', nebula_config_tmpfile.path, inventory_hostname] }}"
   delegate_to: localhost
   become: false
   changed_when: false
-
-- name: Ensure nebula config directory exists
-  ansible.builtin.file:
-    path: "{{ nebula_config_dir }}"
-    state: directory
-    owner: root
-    group: root
-    mode: "0755"
 
 - name: Copy generated config to remote host
   ansible.builtin.copy:
@@ -36,6 +34,7 @@
     owner: root
     group: root
     mode: "0600"
+    validate: "{{ (nebula_install_dir ~ '/nebula -test -config %s') if nebula_config_validate | bool else omit }}"
   diff: false
   notify: Restart nebula
 
