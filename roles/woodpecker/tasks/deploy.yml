@@ -1,9 +1,10 @@
 ---
-- name: Create host cache directories
+# plugin-git sets 0777 on the workspace on every clone, so enforcing mode here
+# produces a perpetual changed=1 drift on every apply.
+- name: Create host cache directories  # noqa: risky-file-permissions
   ansible.builtin.file:
     path: "{{ item }}"
     state: directory
-    mode: "0755"
   loop:
     - "{{ woodpecker_host_cache_dir }}/git-cache"
 
