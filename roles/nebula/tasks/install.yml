@@ -10,6 +10,8 @@
   register: nebula_installed_version
   changed_when: false
   failed_when: false
+  # Read-only, and the download below is decided on its output.
+  check_mode: false
   when: nebula_bin.stat.exists
 
 - name: Download and install nebula
