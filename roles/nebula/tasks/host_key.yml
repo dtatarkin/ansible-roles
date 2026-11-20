@@ -55,7 +55,7 @@
 
     - name: Sign the host public key
       ansible.builtin.command:
-        argv: "{{ nebula_host_cert_sign_command + [inventory_hostname, nebula_host_pub_tmpfile.path] }}"
+        argv: "{{ nebula_host_cert_sign_command + [nebula_host_name, nebula_host_pub_tmpfile.path] }}"
       delegate_to: localhost
       become: false
       changed_when: true

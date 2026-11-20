@@ -8,8 +8,11 @@ nebula_arch: "linux-amd64"
 nebula_install_dir: /usr/local/bin
 nebula_config_dir: /etc/nebula
 
+# The host's name in the network definition, when it differs from the inventory name.
+nebula_host_name: "{{ inventory_hostname }}"
+
 # Command (argv) that writes the host's config on the controller; `--output <file>`
-# and the host name are appended.
+# and nebula_host_name are appended.
 nebula_config_generate_command:
   - uv
   - run
@@ -28,12 +31,12 @@ nebula_config_validate: false
 
 # Keep the host's private key on the host: generate the key pair there
 # (`<nebula_config_dir>/host.key`, `host.pub`) when it is missing, and sign the
-# public key on the controller with `nebula_host_cert_sign_command`. The generated
+# public key on the controller with nebula_host_cert_sign_command. The generated
 # config must then reference the key by path instead of carrying it.
 nebula_host_key_manage: false
 # The curve of the CA that signs the key: 25519 or P256.
 nebula_host_key_curve: "25519"
-# Command (argv) run on the controller to sign the public key; the host name and
+# Command (argv) run on the controller to sign the public key; nebula_host_name and
 # the path of a controller-side copy of the public key are appended. Required
 # with nebula_host_key_manage.
 nebula_host_cert_sign_command: []

@@ -22,7 +22,7 @@
 
 - name: Generate nebula config
   ansible.builtin.command:
-    argv: "{{ nebula_config_generate_command + ['--output', nebula_config_tmpfile.path, inventory_hostname] }}"
+    argv: "{{ nebula_config_generate_command + ['--output', nebula_config_tmpfile.path, nebula_host_name] }}"
   delegate_to: localhost
   become: false
   changed_when: false
